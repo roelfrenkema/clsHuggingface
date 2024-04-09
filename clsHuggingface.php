@@ -54,7 +54,7 @@ class Huggingface {
 			echo "Could not find the API key. Exiting!";
 			exit(-1);
 		}
-		$this->models = json_decode(file_get_contents('models.json'), true);
+		$this->models = json_decode(file_get_contents(__DIR__.'/models.json'), true);
 		
 		 
 		$this->endPoint = Huggingface::INFERENCE.$this->models['stablexl'];
@@ -92,7 +92,7 @@ class Huggingface {
 
 		// Save models	
 		}elseif( $input == "/savemodels"){
-			file_put_contents("models.json",json_encode($this->models));
+			file_put_contents(__DIR__."models.json",json_encode($this->models));
 
 		// Add model	
 		}elseif( substr($input,0,9) == "/addmodel"){
@@ -106,7 +106,7 @@ class Huggingface {
 
 		// Save models	
 		}elseif( $input == "/getmodels"){
-			$this->models = json_decode(file_get_contents('models.json'), true);
+			$this->models = json_decode(file_get_contents(__DIR__.'models.json'), true);
 
 		//  model	
 		}elseif( $input == "/listmodels"){
@@ -135,6 +135,7 @@ class Huggingface {
 
 	public function apiCompletion($aiMessage){
 
+if(substr($aiMessage,0,1) == '/') return;
 
 echo "\n\nEndpoint: ".$this->endPoint."\n\n";
 
@@ -148,7 +149,7 @@ echo "\n\nEndpoint: ".$this->endPoint."\n\n";
 											'negative_prompt' => Huggingface::NEGATIVE,
 											'x-use-cache' => 0,
 //											'guidance_scale' => 30,
-//											'num_inference_steps' => 30,
+//												'num_inference_steps' => 30,
 											'width' => 768,
 											'height' => 1024)
 										
