@@ -1,0 +1,8 @@
+#clsHuggingface
+
+Not much to see yet but it works.
+
+## TODO 
+
+* retry on 503 with pause
+* return on other errors
