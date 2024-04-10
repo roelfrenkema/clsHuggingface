@@ -17,12 +17,8 @@ include('clsHuggingface.php');
 $aiMessage = "";
 $hug = new Huggingface;
 
-$hug->imgStore = '/home/roelf/clsHuggingface/';
-
-/* 
-    Welcome message with model info.
-*/
-
+//$hug->imgStore = path where you want to store image;
+//$hug->exiv2 = true/false
 
 /*
     Start looping till finished with /exit

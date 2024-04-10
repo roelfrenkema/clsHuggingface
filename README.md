@@ -14,6 +14,7 @@ Use it at your own risk.
 
 public class::imgStore = 'path to store images';
 public class::slUpdate = seconds to update 503 pull;
+public class::exiv2 = true/false  when you have exiv2 set to true and prompt will be stored in exiv;
 
 ### Commands
 

@@ -17,6 +17,7 @@ class Huggingface {
 	private $sName;       //shortname for model
 	public $imgStore;     //path to store image
 	public $slUpdate;     // sleep incremeter
+    public $exiv2;        //use exiv2
 
 	/*
 	* Function: __construct
@@ -60,6 +61,8 @@ class Huggingface {
 		$this->sName = 'stablexl';
 		$this->imgStore = '';
 		$this->slUpdate = 30;
+		$this->exiv2 = false;
+		
 		echo "Welcome to clsHuggingface v0.1.0 - enjoy!\n\n";
 
 	}
@@ -254,6 +257,8 @@ echo "\n\nEndpoint short name: ".$this->sName."\n\n";
 		$id = $this->imgStore.'/'.$this->sName.date('jmdHms').'.png';
 		$image->writeImage($id);
 		
+		if($this->exiv2) shell_exec('exiv2 -M"set Exif.Image.ImageDescription Prompt: '. $aiMessage ."\n\n Neg: ".Huggingface::NEGATIVE.'" '.$id);
+
 		echo "\nImage stored as $id\n";
 
 	} 
