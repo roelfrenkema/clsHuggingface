@@ -8,14 +8,12 @@ Now it will retry with an incrementing wait time om 30 sec and try again. Other 
 This class is aiming for developers. It is still very raw and depending on the free interference api.  
 Use it at your own risk.
 
-
-
 ## Help
 
 ### Settings
 
-$clsHuggingface->imgStore = 'path to store images';
-
+public class::imgStore = 'path to store images';
+public class::slUpdate = seconds to update 503 pull;
 
 ### Commands
 

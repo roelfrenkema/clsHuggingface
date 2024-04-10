@@ -16,6 +16,7 @@ class Huggingface {
 	private $models;      //models
 	private $sName;       //shortname for model
 	public $imgStore;     //path to store image
+	public $slUpdate;     // sleep incremeter
 
 	/*
 	* Function: __construct
@@ -58,7 +59,7 @@ class Huggingface {
 		$this->endPoint = Huggingface::INFERENCE.$this->models['stablexl'];
 		$this->sName = 'stablexl';
 		$this->imgStore = '';
-		
+		$this->slUpdate = 30;
 		echo "Welcome to clsHuggingface v0.1.0 - enjoy!\n\n";
 
 	}
@@ -170,16 +171,14 @@ echo "\n\nEndpoint short name: ".$this->sName."\n\n";
 
 		// Prepare query data
 		$data = http_build_query(array('inputs' => $aiMessage,
-										'parameters' => array(
-											'wait_for_model' => true,
+										'wait_for_model' => true,
+											'x-use-cache' => 0,
 											'negative_prompt' => Huggingface::NEGATIVE,
 											'x-use-cache' => 0,
 //											'guidance_scale' => 30,
-//												'num_inference_steps' => 30,
+//											'num_inference_steps' => 30,
 											'width' => 768,
-											'height' => 1024)
-										
-										
+											'height' => 1024
 										));
 
 		// Prepare options
@@ -221,7 +220,7 @@ echo "\n\nEndpoint short name: ".$this->sName."\n\n";
 			
 				if ($error !== null) {
 					if(str_contains($error['message'],'503')){
-						$timer += 30;
+						$timer += $this->slUpdate;
 						echo "Model not loaded yet, trying again in $timer seconds\n";
 						$result="";
 						continue;
