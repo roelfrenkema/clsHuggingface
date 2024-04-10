@@ -114,6 +114,16 @@ class Huggingface {
 			foreach ($this->models as $key => $value) {
 				echo "$key \n";
 			}
+     
+		//  help	
+		}elseif( $input == "/helpme"){
+			$this->help();
+
+		//  lastcheck on not existing command	
+		}elseif( substr($input,0,1) == "/"){
+			echo "\nWARNING COMMAND: $input UNKNOWN\n\n";
+			$this->help();
+
 
 		// Proccess
 		}else{
@@ -224,6 +234,38 @@ echo "\n\nEndpoint: ".$this->endPoint."\n\n";
 		return;
 		
 	}
+	
+	private function help(){
+echo'
+Commands:
 
+/helpme      
+This help
+
+/exit
+Leave class
+
+/setmodel  <model>
+Set model to shortname of model
+
+/savemodels
+Savemodels
+
+/addmodel <short> <model>
+Addmodel choose a shortname and add Hugging model
+model has format like
+stabilityai/stable-diffusion-xl-base-1.0
+Just click on the copy icon in Hugging 
+
+/delmodel <short>
+Delete model with sortname
+
+/getmodels
+load the models from file
+
+/listmodels
+Listmodels
+';
+	}
 }
 ?>

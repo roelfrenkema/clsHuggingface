@@ -18,7 +18,7 @@ include('clsHuggingface.php');
 $aiMessage = "";
 $hug = new Huggingface;
 
-$hug->imgStore = '/data/data/com.termux/files/home/storage/shared/backups';
+$hug->imgStore = '/home/roelf/clsHuggingface/';
 
 /* 
     Welcome message with model info.
