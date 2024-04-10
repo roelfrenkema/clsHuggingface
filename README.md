@@ -12,6 +12,11 @@ Use it at your own risk.
 
 ## Help
 
+### Settings
+
+$clsHuggingface->imgStore = 'path to store images';
+
+
 ### Commands
 
 #### /helpme      
