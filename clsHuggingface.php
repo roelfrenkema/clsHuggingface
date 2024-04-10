@@ -9,7 +9,6 @@
 
 class Huggingface {
 	
-		
 	private const INFERENCE = 'https://api-inference.huggingface.co/models/';
 	private const NEGATIVE = 'painting, sketch,  plastic, (3d), cgi, semi-realistic, cartoon, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad proportions, cloned face, disfigured, out of frame, extra limbs, (bad anatomy), gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, (bad eyes)';
 
@@ -108,12 +107,22 @@ class Huggingface {
 		}elseif( $input == "/getmodels"){
 			$this->models = json_decode(file_get_contents(__DIR__.'models.json'), true);
 
-		//  model	
+		// list model	
 		}elseif( $input == "/listmodels"){
 
 			foreach ($this->models as $key => $value) {
 				echo "$key \n";
 			}
+
+		// list model	to textfile
+		}elseif( $input == "/models2txt"){
+			$atext="";
+			foreach ($this->models as $key => $value) {
+				$atext .= "$key - $value\n";
+			}
+			$id = $this->imgStore.'/models.txt';
+			file_put_contents($id,$atext);
+			echo "List saved to $id\n";
      
 		//  help	
 		}elseif( $input == "/helpme"){
@@ -147,7 +156,7 @@ class Huggingface {
 
 if(substr($aiMessage,0,1) == '/') return;
 
-echo "\n\nEndpoint: ".$this->endPoint."\n\n";
+echo "\n\nEndpoint short name: ".$this->sName."\n\n";
 
 		$httpMethod = 'POST';
 
@@ -186,36 +195,60 @@ echo "\n\nEndpoint: ".$this->endPoint."\n\n";
 		$previous_error_reporting = error_reporting(0);
 
 
-		// Communicate
-		$result = @file_get_contents($this->endPoint, false, $context);
+		// Start pulling session
+		$timer = 0;
+		$pointer = true;
+		
+		while ( $pointer = true){
+			sleep($timer);
+			
+			// Communicate
+			$result = @file_get_contents($this->endPoint, false, $context);
 
 
-		// Check if an error occurred
-		if ($result === false) {
-			$error = error_get_last();
-			if ($error !== null) {
-				$message = explode(":",$error['message']);
-				echo "Error: {$message[3]} \n\nThis can be a temporary API failure, try again later!\n";
-				return;
-			} else {
-				echo "An unknown error occurred while fetching the webpage. Please try again!\n";
-				return;
+			// Check if an error occurred
+			if ($result === false) {
+			
+				$error = error_get_last();
+//				var_dump($error);
+			
+				if ($error !== null) {
+					if(str_contains($error['message'],'503')){
+						$timer += 30;
+						echo "Model not loaded yet, trying again in $timer seconds\n";
+						$result="";
+						continue;
+					}elseif(str_contains($error['message'],'500')){
+						echo "Server error 500, returning.\n";
+						return;
+					}elseif((str_contains($error['message'],'429')) || (str_contains($error['message'],'403')) ){
+						echo "Too many request. Returning.";
+						return;
+					}else{
+						$timer += 30;
+						$granate = explode(":",$error['message']);
+						echo $granate[5] ." not acted on.\n\n";
+						return;
+					}
+				} else {
+					echo "An unknown error occurred while fetching the webpage. Please try again!\n";
+					return;
+				}
 			}
-		}
+			break; // we have a picture
+		} //end while
 		
 		// Restore the previous error reporting level
 		error_reporting($previous_error_reporting);
+
 		// Decode the image blob
-		//$image = imagecreatefromstring($result);
-		
 		$image = new Imagick();
 		$image->readImageBlob($result);
 		$image->setImageFormat('png');
-		$image->writeImage($this->imgStore.'/'.$this->sName.date('jmdHms').'.png');
-		// Save the image to a file
-		//imagepng($image, 'storage/shared/backups/'.$this->sName.date('jmdHms').'.png');
+		$id = $this->imgStore.'/'.$this->sName.date('jmdHms').'.png';
+		$image->writeImage($id);
 		
-		echo "Done\n";
+		echo "\nImage stored as $id\n";
 
 	} 
 	
@@ -229,7 +262,7 @@ echo "\n\nEndpoint: ".$this->endPoint."\n\n";
 			}
 		}
 
-		echo "\nCurrent model is : $this->endPoint \n";
+		echo "\nModel is: $this->sName\n";
 		
 		return;
 		
@@ -265,6 +298,10 @@ load the models from file
 
 /listmodels
 Listmodels
+
+/models2txt
+Creates a txt list of models, easy if you want to keep notes.
+
 ';
 	}
 }

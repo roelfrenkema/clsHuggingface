@@ -1,9 +1,14 @@
 # clsHuggingface
 
+The class will check for 503 errors usually pointing to the fact that the model wasnt loaded yet.
+Now it will retry with an incrementing wait time om 30 sec and try again. Other API errors will  
+
 ## Work in progress
 
 This class is aiming for developers. It is still very raw and depending on the free interference api.  
 Use it at your own risk.
+
+
 
 ## Help
 
@@ -38,14 +43,18 @@ Delete model with sortname \<short\>. The shortname is the name from /listmodels
 
 Load the models from file
 
-#### listmodels
+#### /listmodels
 
 List loaded models
 
+#### /models2txt
+
+Creates a txt list of models, easy if you want to keep notes.
+
 ## TODO 
 
-* retry on 503 with pause
-* return on other errors
+check for existing tags or models at /addmodel
+
 
 ## License
 
