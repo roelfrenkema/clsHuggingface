@@ -17,22 +17,22 @@ This help
 
 Leave class
 
-#### /setmodel  <model>
+#### /setmodel  \<model\>
 
-Set model to shortname of model, aka the name you see in /listmodels
+Set model to shortname of \<model\>, aka the name you see in /listmodels
 
 #### /savemodels
 
 Savemodels currentmodels to file. Suggested use after /addmodels
 
-#### /addmodel <short> <model>
+#### /addmodel \<short\> \<model\>
 
-choose a shortname <short> to show in listmodels and add Hugging <model>.  
-A model has format like: stabilityai/stable-diffusion-xl-base-1.0  
-The modelname can be retrieved on Hugginface by clicking the copy icon next to its nama.
+choose a shortname \<short\> to show in listmodels and add Hugging \<model\>.  
+A model has format like: **stabilityai/stable-diffusion-xl-base-1.0**  
+The modelname can be retrieved on Hugginface by clicking the copy icon next to its name.
 
-#### /delmodel <short>
-Delete model with sortname <short>. The shortname is the name from /listmodels.
+#### /delmodel \<short\>
+Delete model with sortname \<short\>. The shortname is the name from /listmodels.
 
 #### /getmodels
 
