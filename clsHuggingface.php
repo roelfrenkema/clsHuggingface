@@ -96,8 +96,16 @@ class Huggingface {
 		// Add model	
 		}elseif( substr($input,0,9) == "/addmodel"){
 			$granate = explode(" ",substr($input,10));
-			$this->models[$granate[0]] = $granate[1];
-
+			if(! array_key_exists($granate[0],$this->models)){
+				$smodel = array_search($granate[1], $this->models);
+				if(! $smodel){
+					$this->models[$granate[0]] = $granate[1];
+				}else{
+					echo "\nModel already available as $smodel\n";
+				}
+			}else{
+				echo "\nShortname already in use!\n";
+			}
 		// Remove model	
 		}elseif( substr($input,0,9) == "/delmodel"){
 			$granate = trim(substr($input,10));
