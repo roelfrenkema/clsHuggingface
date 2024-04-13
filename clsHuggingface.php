@@ -9,7 +9,6 @@
 class Huggingface {
 	
 	private const INFERENCE = 'https://api-inference.huggingface.co/models/';
-	private const NEGATIVE = 'painting, sketch,  plastic, (3d), cgi, semi-realistic, cartoon, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad proportions, cloned face, disfigured, out of frame, extra limbs, (bad anatomy), gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck, (bad eyes)';
 
 	private $apiKey;      //secure apiKey
 	private $endPoint;    //containing our endpoint
@@ -71,7 +70,7 @@ class Huggingface {
 		$this->exiv2 = false;
 		$this->exiv2User = 'clsHuggingface';
 		$this->exiv2Copy = 'CC BY-NC-SA 4.0';
-		$this->negPrompt = "";
+		$this->negPrompt = "distortion";
 		$this->logAll = false;
 
 		
@@ -107,7 +106,7 @@ class Huggingface {
 		// Import models	
 		}elseif( substr($input,0,11) == "/txt2models"){
 			 $this->models = array();
-			 $this->importModels(substr($input,12));
+			 $this->importModels(substr($input,11));
 
 		// Add model	
 		}elseif( substr($input,0,9) == "/addmodel"){
@@ -169,7 +168,7 @@ class Huggingface {
 		// Proccess
 		}else{
 			$this->prompt = $input;
-			$answer = $this->apiCompletion($input.",".$this->negPrompt);
+			$answer = $this->apiCompletion($input);
 		}
 	}
 
@@ -199,7 +198,7 @@ class Huggingface {
 		$data = http_build_query(array('inputs' => $aiMessage,
 										'wait_for_model' => true,
 											'x-use-cache' => 0,
-											'negative_prompt' => Huggingface::NEGATIVE,
+											'negative_prompt' => $this->negPrompt,
 											'x-use-cache' => 0,
 //											'guidance_scale' => 30,
 //											'num_inference_steps' => 30,
@@ -225,7 +224,6 @@ class Huggingface {
 
 		// Temporarily disable error reporting
 		$previous_error_reporting = error_reporting(0);
-
 
 		// Start pulling session
 		$timer = 0;
@@ -371,7 +369,7 @@ replace current models by <textfile> full path name.
 
 		}
 
-		echo "\nModel $input added\n";
+		echo "Model $input added\n";
 
 		return;
 	}
@@ -450,13 +448,16 @@ replace current models by <textfile> full path name.
 	}
 
 	function importModels($string){
-		
-		if( ! is_file( $string )) {
-			echo "$string - NOT FOUND\n";
-			return;
-		}else{
-			$stack = file_get_contents($string);
+
+$home_dir = getenv('HOME');
+$gfile = $home_dir."/".trim($string);
+	
+		if( is_file( $gfile )) {
+			$stack = file_get_contents($gfile);
 			$lines = explode( "\n" , $stack );
+		}else{
+			echo "$gfile - NOT FOUND\n";
+			return;
 		}
 		
 		foreach( $lines as $line ){
@@ -471,8 +472,9 @@ replace current models by <textfile> full path name.
 	}
 	
 	private function setExif($aiMessage,$id){
+
 		
-		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->prompt ."\n\nNeg: ".Huggingface::NEGATIVE.'"';
+		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->prompt ."\n\nNeg: ".$this->negPrompt.'"';
 		$myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
@@ -480,8 +482,8 @@ replace current models by <textfile> full path name.
 		$myM .= ' -M"set Xmp.xmp.CreatorTool clsHuggingface"';
 		$myM .= ' -M"set Exif.Image.Software clsHuggingface"';
 		$myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
-		shell_exec("exiv2 $myM ".$id);
-
+		
+		$test = shell_exec("exiv2 $myM ".$id);
 	}
 	
 	private function writeImage($blob){
@@ -491,9 +493,7 @@ replace current models by <textfile> full path name.
 		$image->setImageFormat('png');
 		$id = $this->imgStore.'/'.$this->sName.'-'.date('jmdHms').'.png';
 		$image->writeImage($id);
-		
 		if($this->exiv2) $this->setExif($aiMessage,$id);
-		
 		echo "\nImage stored as $id\n";
 		if($this->logAll) $this->logString("Main: Image stored as $id\n") ;
 		return 0;
