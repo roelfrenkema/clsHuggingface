@@ -1,4 +1,3 @@
-<?php
 /*
  * clsHuggingface.php © 2024 by Roelfrenkema is licensed under CC BY-NC-SA 4.0. 
  * To view a copy of this license, 
@@ -12,7 +11,7 @@ class Huggingface {
 
 	private $apiKey;      //secure apiKey
 	private $endPoint;    //containing our endpoint
-	private $models;      //models
+	public $models;      //models
 	private $sName;       //shortname for model
 	public $logAll;      //logging?
 	public $imgStore;     //path to store image1
@@ -56,13 +55,14 @@ class Huggingface {
 			echo "Could not find the API key. Exiting!";
 			exit(-1);
 		}
-		$this->models = json_decode(file_get_contents(__DIR__.'/models.json'), true);
 		
-		foreach( $this->models as $tag => $value){
+		//$this->models = json_decode(file_get_contents(__DIR__.'/models.json'), true);
+		
+		/* foreach( $this->models as $tag => $value){
 			$this->sName = $tag;
 			$this->endPoint = Huggingface::INFERENCE.$value;
 			break;
-		}
+		}*/
 			 
 		$this->imgStore = '';
 		$this->slUpdate = 30;
@@ -72,7 +72,7 @@ class Huggingface {
 		$this->exiv2Copy = 'CC BY-NC-SA 4.0';
 		$this->negPrompt = "distortion";
 		$this->logAll = false;
-
+		$this->models = array();
 		
 		echo "Welcome to clsHuggingface v0.1.0 - enjoy!\n\n";
 
@@ -130,8 +130,8 @@ class Huggingface {
 		// list model	
 		}elseif( $input == "/listmodels"){
 
-			foreach ($this->models as $key => $value) {
-				echo "$key - $value\n";
+			foreach ($this->models as $model) {
+				echo "$model['tag_name'] - $model['model']\n";
 			}
 
 		// list model	to textfile
@@ -296,11 +296,11 @@ class Huggingface {
 	
 	private function changeModel($input){
 		
-		foreach ($this->models as $key => $value) {
+		foreach ($this->models as $model) {
 
-			if($input == $key ){
-				$this->endPoint = Huggingface::INFERENCE.$value;
-				$this->sName = $key;
+			if($input == $model['tag_name'] ){
+				$this->endPoint = Huggingface::INFERENCE.$model['model'];
+				$this->sName = $model['tag_name'];
 			}
 		}
 
@@ -413,15 +413,15 @@ Set a negative prompt
 		//store current endPoint.
 		$storeEndpoint = $this->endPoint;
 		$storeSname = $this->sName;
-	
-		foreach( $this->models as $key => $model ) {
+		
+		foreach( $this->models as  $model ) {
 			$response="";
 
 			//set endpoint
-			$this->endPoint = Huggingface::INFERENCE.$model;
-			$this->sName = $key;
+			$this->endPoint = Huggingface::INFERENCE.$model['model'];
+			$this->sName = $model['tag_name'];
 			
-			$response = $this->apiCompletion($prompt);
+			$response = $this->apiCompletion(trim($model['pre'].' '.$prompt.' '.$model['past']));
 
 			if($response == 429){
 				echo "\nStopping an hour due to API ratelimiting, sorry.\n";
