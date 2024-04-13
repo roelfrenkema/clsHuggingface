@@ -99,6 +99,10 @@ class Huggingface {
 		if ( $input == "/exit" ){
 			exit;
 
+		// Set negPromp	
+		}elseif( substr($input,0,6) == "/setnp"){
+			 $this->negPrompt = substr($input,7);
+
 		// Set model	
 		}elseif( substr($input,0,9) == "/setmodel"){
 			 $this->changeModel(substr($input,10));
@@ -339,6 +343,9 @@ Creates a txt list of models, easy if you want to keep notes.
 
 /txt2models <textfile
 replace current models by <textfile> full path name.
+
+/setng
+Set a negative prompt
 
 ';
 	}
