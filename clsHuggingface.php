@@ -12,18 +12,19 @@ class Huggingface {
 
 	private $apiKey;      //secure apiKey
 	private $endPoint;    //containing our endpoint
-	private $models;      //models
+	public $useModels;      //models
 	private $sName;       //shortname for model
 	public $logAll;      //logging?
 	public $imgStore;     //path to store image1
     public $slMax;        //max value for sleep before passing out
 	public $slUpdate;     // sleep incremeter
     public $exiv2;        //use exiv2
-    public $prompt;       //use for prompt
-	public $negative;     //use for negative prompt
+    public $userPrompt;       //use for prompt
+    public $negPrompt;     //negative prompt from user
+    private $prePrompt;    //add before prompt
+    private $pastPrompt;    //add after prompt
     public $exiv2User;     //get your name stamped
     public $exiv2Copy;     //copyright info
-    public $negPrompt;     //negative prompt from user
     
 	/*
 	* Function: __construct
@@ -56,14 +57,7 @@ class Huggingface {
 			echo "Could not find the API key. Exiting!";
 			exit(-1);
 		}
-		$this->models = json_decode(file_get_contents(__DIR__.'/models.json'), true);
-		
-		foreach( $this->models as $tag => $value){
-			$this->sName = $tag;
-			$this->endPoint = Huggingface::INFERENCE.$value;
-			break;
-		}
-			 
+		$this->useModels = array();
 		$this->imgStore = '';
 		$this->slUpdate = 30;
 		$this->slMax = 300;
@@ -105,45 +99,14 @@ class Huggingface {
 
 		// Set model	
 		}elseif( substr($input,0,9) == "/setmodel"){
-			 $this->changeModel(substr($input,10));
-
-		// Import models	
-		}elseif( substr($input,0,11) == "/txt2models"){
-			 $this->models = array();
-			 $this->importModels(substr($input,11));
-
-		// Add model	
-		}elseif( substr($input,0,9) == "/addmodel"){
-			
-			$this->addModel(substr($input,10));
-
-		// Remove model	
-		}elseif( substr($input,0,9) == "/delmodel"){
-			$granate = trim(substr($input,10));
-			unset($this->models[$granate]);
-			echo "\nModel removed\n";
-
-		// Get models	
-		}elseif( substr($input,0,10) == "/getmodels"){
-			$this->getModels($input);
+			 $this->setModel(substr($input,10));
 
 		// list model	
 		}elseif( $input == "/listmodels"){
 
-			foreach ($this->models as $key => $value) {
-				echo "$key - $value\n";
+			foreach ($this->useModels as $model) {
+				echo $model['tag'].' - '.$model['model']."\n";
 			}
-
-		// list model	to textfile
-		}elseif( $input == "/models2txt"){
-			$atext="";
-			foreach ($this->models as $key => $value) {
-				$atext .= "$key - $value\n";
-			}
-			$id = $this->imgStore.'/models.txt';
-			file_put_contents($id,$atext);
-			echo "List saved to $id\n";
-
 
 		// loop prompt through models	
 		}elseif( substr($input,0,5) == "/loop"){
@@ -171,8 +134,8 @@ class Huggingface {
 
 		// Proccess
 		}else{
-			$this->prompt = $input;
-			$answer = $this->apiCompletion($input);
+			$this->userPrompt = trim($this->prePrompt.' '.$input.' '.$this->pastPrompt);
+			$answer = $this->apiCompletion($this->userPrompt);
 		}
 	}
 
@@ -190,8 +153,6 @@ class Huggingface {
 
 	public function apiCompletion($aiMessage){
 
-		if(substr($aiMessage,0,1) == '/') return;
-
 		echo "\n\nEndpoint short name: ".$this->sName."\n\n";
 		if($this->logAll) $this->logString("Main: Endpoint short name: ".$this->sName) ;
 
@@ -199,7 +160,7 @@ class Huggingface {
 
 
 		// Prepare query data
-		$data = http_build_query(array('inputs' => $aiMessage,
+		$data = http_build_query(array('inputs' => $this->userPrompt,
 										'wait_for_model' => true,
 											'x-use-cache' => 0,
 											'negative_prompt' => $this->negPrompt,
@@ -294,26 +255,28 @@ class Huggingface {
 
 	} 
 	
-	private function changeModel($input){
+	public function setModel($input){
 		
-		foreach ($this->models as $key => $value) {
+		foreach ($this->useModels as $model) {
 
-			if($input == $key ){
-				$this->endPoint = Huggingface::INFERENCE.$value;
-				$this->sName = $key;
+			if( $model['tag'] == trim($input) ){
+
+				$this->endPoint = Huggingface::INFERENCE.$model['model'];
+				$this->sName = $model['tag'];
+				$this->prePrompt = $model['pre'];
+				$this->pastPrompt = $model['past'];
 			}
 		}
 
 		echo "\nModel is: $this->sName\n";
 		
 		return;
-		
 	}
 	
 	private function help(){
 echo'
 Commands:
-k
+
 /helpme      
 This help
 
@@ -323,105 +286,32 @@ Leave class
 /setmodel  <model>
 Set model to shortname of model
 
-/addmodel <short> <model>
-Addmodel choose a shortname and add Hugging model
-model has format like
-stabilityai/stable-diffusion-xl-base-1.0
-Just click on the copy icon in Hugging 
-
-/delmodel <short>
-Delete model with sortname
-
-/getmodels
-load the original models from file
-
 /listmodels
 Listmodels
 
-/models2txt
-Creates a txt list of models, easy if you want to keep notes.
-
-/txt2models <textfile
-replace current models by <textfile> full path name.
-
-/setng
+/setnp
 Set a negative prompt
+
+/loop <prompt>
+Loop through loaded models with prompt.
 
 ';
 	}
 	
-	function addModel($input){
-
-		$granate = explode( " " , $input );
-
-		if(! array_key_exists($granate[0],$this->models)){
-
-			$smodel = array_search($granate[1], $this->models);
-
-			if(! $smodel){
-
-				$this->models[$granate[0]] = $granate[1];
-
-			}else{
-
-				echo "\nModel already available as $smodel\n";
-				return;
-
-			}
-
-		}else{
-
-			echo "\nShortname already in use!\n";
-			return;
-
-		}
-
-		echo "Model $input added\n";
-
-		return;
-	}
 	
-	function getModels($input){
-		            
-		if(strlen($input) == 10){
-			
-			$name = "models"; // default models
-
-		}else{
-
-			$name = substr($input,11);
-
-		}
-
-		$id = __DIR__."/$name.json";
-		
-		if(! is_file( $id )){
-
-			echo "\nModel $name not found\n";
-			
-			return;
-			
-		}
-
-		$this->models = json_decode(file_get_contents($id), true);
-		echo "\nModels loaded\n";
-
-	}
 	function loopModels($prompt){
 		
-		
-		//store current endPoint.
-		$storeEndpoint = $this->endPoint;
+		//store current model.
 		$storeSname = $this->sName;
 	
-		foreach( $this->models as $key => $model ) {
+		foreach( $this->useModels as $model ) {
 			$response="";
 
 			//set endpoint
-			$this->endPoint = Huggingface::INFERENCE.$model;
-			$this->sName = $key;
+			$this->endPoint = Huggingface::INFERENCE.$model['model'];
+			$this->sName = $model['tag'];
 			
-			$response = $this->apiCompletion($prompt);
+			$response = $this->apiCompletion( trim($this->prePromp.' '.$prompt.' '.$this->pastPrompt) );
 
 			if($response == 429){
 				echo "\nStopping an hour due to API ratelimiting, sorry.\n";
@@ -441,8 +331,7 @@ Set a negative prompt
 		}
 		
 		// restore endPoint
-		$this->endPoint = $storeEndpoint;
-		$this->sName = $storeSname;
+		$this->setModel($storeSname);
 		
 	}
 	function logString($string){
@@ -454,34 +343,11 @@ Set a negative prompt
 		return;
 	}
 
-	function importModels($string){
-
-$home_dir = getenv('HOME');
-$gfile = $home_dir."/".trim($string);
-	
-		if( is_file( $gfile )) {
-			$stack = file_get_contents($gfile);
-			$lines = explode( "\n" , $stack );
-		}else{
-			echo "$gfile - NOT FOUND\n";
-			return;
-		}
-		
-		foreach( $lines as $line ){
-			
-			if( ! $line == "" ){
-				echo "Trying to add: $line\n";
-				$this->addModel($line);
-			}
-		}
-		
-		return;
-	}
 	
 	private function setExif($aiMessage,$id){
 
 		
-		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->prompt ."\n\nNeg: ".$this->negPrompt.'"';
+		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->userPrompt ."\n\nNeg: ".$this->negPrompt.'"';
 		$myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
