@@ -38,8 +38,7 @@ Loop through loaded models with prompt.
 
 ### /loadmodels <path/name>
 
-<path/name> from shell homedir starting with a slash or
-just leave ot the path in name is in your home dir. 
+<path/name> from shell homedir starting with a slash where slash is your homedir
 
 
 

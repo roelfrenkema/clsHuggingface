@@ -161,9 +161,9 @@ class Huggingface {
 		$input = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
 
 		echo "\n\nEndpoint short name: ".$this->sName."\n";
-		echo "Prompt : ".$input."\n";
+		//echo "Prompt : ".$input."\n";
 
-		if($this->logAll) $this->logString("Main: Endpoint short name: ".$this->sName) ;
+		if($this->logAll) $this->logString("Main: Endpoint short name: ".$this->sName."\n") ;
 
 		$httpMethod = 'POST';
 
@@ -387,8 +387,6 @@ Loop through loaded models with prompt.
 	}
 	
 	public function loadModels($tpath){
-		echo $tpath."\n";
-		echo $this->userHome."\n";
 		if (! is_file($this->userHome.$tpath)){
 			echo $this->userHome.$tpath." not found!\n";
 		}else{
