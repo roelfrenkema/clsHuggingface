@@ -10,54 +10,39 @@ Use it at your own risk.
 
 ## Help
 
-### Settings
+Commands:
 
-public class::imgStore = 'path to store images';
-public class::slUpdate = seconds to update 503 pull;
-public class::exiv2 = true/false  when you have exiv2 set to true and prompt will be stored in exiv;
-
-### Commands
-
-#### /helpme      
+### /helpme 
 
 This help
 
-#### /exit
+### /exit 
 
 Leave class
 
-#### /setmodel  \<model\>
+### /setmodel  <model> 
 
-Set model to shortname of \<model\>, aka the name you see in /listmodels
+Set model to tagname of model
 
-#### /savemodels
+### /listmodels  
 
-Savemodels currentmodels to file. Suggested use after /addmodels
+Listmodels format tag - model
 
-#### /addmodel \<short\> \<model\>
+### /setnp 
 
-choose a shortname \<short\> to show in listmodels and add Hugging \<model\>.  
-A model has format like: **stabilityai/stable-diffusion-xl-base-1.0**  
-The modelname can be retrieved on Hugginface by clicking the copy icon next to its name.
+Set a negative prompt
 
-#### /delmodel \<short\>
-Delete model with sortname \<short\>. The shortname is the name from /listmodels.
+### /loop <prompt> 
 
-#### /getmodels
+Loop through loaded models with prompt.
 
-Load the models from file
+### /loadmodels <path/name>
 
-#### /listmodels
+<path/name> from shell homedir starting with a slash or
+just leave ot the path in name is in your home dir. 
 
-List loaded models
 
-#### /models2txt
 
-Creates a txt list of models, easy if you want to keep notes.
-
-## TODO 
-
-check for existing tags or models at /addmodel
 
 
 ## License

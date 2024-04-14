@@ -69,7 +69,7 @@ class Huggingface {
 		$this->logAll = false;
 		$this->userHome = $_ENV['HOME'];
 		
-		echo "Welcome to clsHuggingface v0.1.0 - enjoy!\n\n";
+		echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
 
 	}
  	/*
