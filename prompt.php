@@ -21,21 +21,30 @@ include('clsHuggingface.php');
 $aiMessage = "";
 $hug = new Huggingface;
 
+//where to store images
 $hug->imgStore = $home.'/git/clsHuggingface';
-$hug->exiv2 = true;
+
+// Exif info for use with exiv2
+$hug->exiv2 = false; // set to true if you have exiv2 
 $hug->exiv2User = "Roelf Renkema";
 $hug->exiv2Copy = 'CC BY-NC-SA 4.0';
-$hug->logAll = true;
+
+// Logging true/false
+$hug->logAll = false;
+
+// Timeout for /loop
 $hug->slMax = 300;
+
+// Amount to add to sleep at each loop
 $hug->slUpdate = 30;
 
 //getmodels
-include($hug->imgStore.'mdl_base.php');
+$hug->loadModels('/git/clsHuggingface/mdl_base.php');
 
 // set startmodel
 $hug->setModel('base');
 
-// default set your favorite neg prompt
+// default set neg prompt
 $hug->negPrompt = '-((urban elements)):0.8, -((daytime)):0.7, -((animals)):0.9, -((people)):0.9, -((vehicles)):0.8, -((modern buildings)):0.7.';
 
 

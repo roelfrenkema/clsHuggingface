@@ -25,6 +25,7 @@ class Huggingface {
     private $pastPrompt;    //add after prompt
     public $exiv2User;     //get your name stamped
     public $exiv2Copy;     //copyright info
+    private $userHome;
     
 	/*
 	* Function: __construct
@@ -66,7 +67,7 @@ class Huggingface {
 		$this->exiv2Copy = 'CC BY-NC-SA 4.0';
 		$this->negPrompt = "distortion";
 		$this->logAll = false;
-
+		$this->userHome = $_ENV['HOME'];
 		
 		echo "Welcome to clsHuggingface v0.1.0 - enjoy!\n\n";
 
@@ -93,6 +94,10 @@ class Huggingface {
 		if ( $input == "/exit" ){
 			exit;
 
+		//loadmodels
+		}elseif ( substr($input,0,11) == "/loadmodels" ){
+			$this->loadModels(trim(substr($input,12)));
+		
 		// Set negPromp	
 		}elseif( substr($input,0,6) == "/setnp"){
 			 $this->negPrompt = substr($input,7);
@@ -151,16 +156,20 @@ class Huggingface {
 	* adjusted to reflect the other information
 	*/
 
-	public function apiCompletion($aiMessage){
+	public function apiCompletion(){
+		
+		$input = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
 
-		echo "\n\nEndpoint short name: ".$this->sName."\n\n";
+		echo "\n\nEndpoint short name: ".$this->sName."\n";
+		echo "Prompt : ".$input."\n";
+
 		if($this->logAll) $this->logString("Main: Endpoint short name: ".$this->sName) ;
 
 		$httpMethod = 'POST';
 
 
 		// Prepare query data
-		$data = http_build_query(array('inputs' => $this->userPrompt,
+		$data = http_build_query(array('inputs' => $input,
 										'wait_for_model' => true,
 											'x-use-cache' => 0,
 											'negative_prompt' => $this->negPrompt,
@@ -295,6 +304,10 @@ Set a negative prompt
 /loop <prompt>
 Loop through loaded models with prompt.
 
+/loadmodels <path/name>
+<path/name> from home starting with slash>
+
+
 ';
 	}
 	
@@ -303,15 +316,15 @@ Loop through loaded models with prompt.
 		
 		//store current model.
 		$storeSname = $this->sName;
-	
+		$this->userPrompt = $prompt;
+		
 		foreach( $this->useModels as $model ) {
 			$response="";
 
 			//set endpoint
-			$this->endPoint = Huggingface::INFERENCE.$model['model'];
-			$this->sName = $model['tag'];
+			$this->setModel($model['tag']);
 			
-			$response = $this->apiCompletion( trim($this->prePromp.' '.$prompt.' '.$this->pastPrompt) );
+			$response = $this->apiCompletion();
 
 			if($response == 429){
 				echo "\nStopping an hour due to API ratelimiting, sorry.\n";
@@ -371,6 +384,18 @@ Loop through loaded models with prompt.
 		if($this->logAll) $this->logString("Main: Image stored as $id\n") ;
 		return 0;
 
+	}
+	
+	public function loadModels($tpath){
+		echo $tpath."\n";
+		echo $this->userHome."\n";
+		if (! is_file($this->userHome.$tpath)){
+			echo $this->userHome.$tpath." not found!\n";
+		}else{
+			$this->useModels = array();
+			include($this->userHome.$tpath);
+			echo $this->userHome.$tpath." loaded!\n";
+		}
 	}
 	
 	
