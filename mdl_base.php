@@ -94,19 +94,19 @@ $this->useModels[] = array(
 	'past' => ''
 );
 $this->useModels[] = array(
-	'tag' => 'silhouette',
+	'tag' => 'silhouette-a',
 	'model' => 'DoctorDiffusion/doctor-diffusion-s-stylized-silhouette-photography-xl-lora',
 	'pre' => 'sli artstyle',
 	'past' => ''
 );
 $this->useModels[] = array(
-	'tag' => 'silhouette',
+	'tag' => 'silhouette-f',
 	'model' => 'DoctorDiffusion/doctor-diffusion-s-stylized-silhouette-photography-xl-lora',
 	'pre' => 'in front of',
 	'past' => ''
 );
 $this->useModels[] = array(
-	'tag' => 'silhouette',
+	'tag' => 'silhouette-w',
 	'model' => 'DoctorDiffusion/doctor-diffusion-s-stylized-silhouette-photography-xl-lora',
 	'pre' => 'in water',
 	'past' => ''
