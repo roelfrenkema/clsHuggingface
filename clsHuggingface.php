@@ -101,10 +101,20 @@ class Huggingface {
 		// Set negPromp	
 		}elseif( substr($input,0,6) == "/setnp"){
 			 $this->negPrompt = substr($input,7);
+			 echo "Negative prompt: $this->negPrompt\n";
+
+		// Add to negPromp	
+		}elseif( substr($input,0,6) == "/addnp"){
+			 $this->negPrompt .= substr($input,7);
+			 echo "Negative prompt: $this->negPrompt\n";
 
 		// Set model	
 		}elseif( substr($input,0,9) == "/setmodel"){
 			 $this->setModel(substr($input,10));
+
+		// Show current negative prompt	
+		}elseif( $input == "/shownp"){
+			 echo "Negative prompt: $this->negPrompt\n";
 
 		// list model	
 		}elseif( $input == "/listmodels"){
@@ -307,7 +317,11 @@ Loop through loaded models with prompt.
 /loadmodels <path/name>
 <path/name> from home starting with slash>
 
+/shownp
+Show negative prompt
 
+/addnp
+Add to current Negative Prompt
 ';
 	}
 	

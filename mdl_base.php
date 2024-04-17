@@ -10,6 +10,18 @@ $this->useModels[] = array(
 	'past' => ''
 );
 $this->useModels[] = array(
+	'tag' => 'yntecgasm',
+	'model' => 'Yntec/epiCPhotoGasm',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
+	'tag' => 'stablegasm',
+	'model' => 'stablediffusionapi/epicphotogasm-6985',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
 	'tag' => 'afrodite',
 	'model' => 'stablediffusionapi/afrodite-xl-v2',
 	'pre' => '',
