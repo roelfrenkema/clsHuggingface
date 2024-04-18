@@ -5,7 +5,7 @@
 //base model
 $this->useModels[] = array(
 	'tag' => 'mixtral',
-	'model' => 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+	'model' => 'mistralai/Mixtral-8x7B-Instruct-v0.2',
 	'pre' => '',
 	'past' => ''
 );
@@ -22,4 +22,11 @@ $this->useModels[] = array(
 	'pre' => '',
 	'past' => ''
 );
+$this->useModels[] = array(
+	'tag' => 'zephyr',
+	'model' => 'HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1',
+	'pre' => '',
+	'past' => ''
+);
+
 ?>
