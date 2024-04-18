@@ -6,26 +6,21 @@
  *
  */
 
-class Huggingface {
+class HugChat {
 	
 	private const INFERENCE = 'https://api-inference.huggingface.co/models/';
-
-	private $apiKey;      //secure apiKey
-	private $endPoint;    //containing our endpoint
-	public $useModels;      //models
-	private $sName;       //shortname for model
-	public $logAll;      //logging?
-	public $imgStore;     //path to store image1
-    public $slMax;        //max value for sleep before passing out
-	public $slUpdate;     // sleep incremeter
-    public $exiv2;        //use exiv2
-    public $userPrompt;       //use for prompt
-    public $negPrompt;     //negative prompt from user
-    private $prePrompt;    //add before prompt
-    private $pastPrompt;    //add after prompt
-    public $exiv2User;     //get your name stamped
-    public $exiv2Copy;     //copyright info
-    private $userHome;
+	
+	private $userAgent;		//useragent string.
+	private $apiKey;		//secure apiKey
+	private $endPoint;		//containing our endpoint
+	public $useModels;		//models
+	private $sName;			//shortname for model
+	public $logAll;			//logging?
+    public $slMax; 			//max value for sleep before passing out
+	public $slUpdate;		// sleep incremeter
+    public $userPrompt;		//use for prompt
+    private $userHome;		//users $HOME dir
+    private $chatHistory;	//chat history to continue chat
     
 	/*
 	* Function: __construct
@@ -52,10 +47,6 @@ class Huggingface {
 		  echo "PHP module openssl is needed to run clsStraico. Please install it. Exiting!\n";
 		  exit;
 		}
-		if (! extension_loaded('imagick')) {
-		  echo "PHP module imagick is needed to run clsStraico. Please install it. Exiting!\n";
-		  exit;
-		}
 		if ( getenv("INFERENCE_READ") ){
 			$this->apiKey = getenv('INFERENCE_READ');
 		}else{
@@ -63,17 +54,14 @@ class Huggingface {
 			exit(-1);
 		}
 		$this->useModels = array();
-		$this->imgStore = '';
 		$this->slUpdate = 30;
 		$this->slMax = 300;
-		$this->exiv2 = false;
-		$this->exiv2User = 'clsHuggingface';
-		$this->exiv2Copy = 'CC BY-NC-SA 4.0';
-		$this->negPrompt = "distortion";
 		$this->logAll = false;
 		$this->userHome = $_ENV['HOME'];
-		
-		echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
+		// moet dynamisch gevuld worden later
+		$this->userAgent = 'clsHugChat.php (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
+		$this->chatHistory = "";
+		echo "Welcome to clsHugChat v0.0.1 - enjoy!\n\n";
 
 	}
  	/*
@@ -102,23 +90,9 @@ class Huggingface {
 		}elseif ( substr($input,0,11) == "/loadmodels" ){
 			$this->loadModels(trim(substr($input,12)));
 		
-		// Set negPromp	
-		}elseif( substr($input,0,6) == "/setnp"){
-			 $this->negPrompt = substr($input,7);
-			 echo "Negative prompt: $this->negPrompt\n";
-
-		// Add to negPromp	
-		}elseif( substr($input,0,6) == "/addnp"){
-			 $this->negPrompt .= substr($input,7);
-			 echo "Negative prompt: $this->negPrompt\n";
-
 		// Set model	
 		}elseif( substr($input,0,9) == "/setmodel"){
 			 $this->setModel(substr($input,10));
-
-		// Show current negative prompt	
-		}elseif( $input == "/shownp"){
-			 echo "Negative prompt: $this->negPrompt\n";
 
 		// list model	
 		}elseif( $input == "/listmodels"){
@@ -153,7 +127,7 @@ class Huggingface {
 
 		// Proccess
 		}else{
-			$this->userPrompt = trim($this->prePrompt.' '.$input.' '.$this->pastPrompt);
+			$this->userPrompt = trim($input);
 			$answer = $this->apiCompletion($this->userPrompt);
 		}
 	}
@@ -172,10 +146,9 @@ class Huggingface {
 
 	public function apiCompletion(){
 		
-		$input = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
+		$input = trim($this->userPrompt);
 
 		echo "\n\nEndpoint short name: ".$this->sName."\n";
-		//echo "Prompt : ".$input."\n";
 
 		if($this->logAll) $this->logString("Main: Endpoint short name: ".$this->sName."\n") ;
 
@@ -183,23 +156,18 @@ class Huggingface {
 
 
 		// Prepare query data
-		$data = http_build_query(array('inputs' => $input,
-										'wait_for_model' => true,
-											'x-use-cache' => 0,
-											'negative_prompt' => $this->negPrompt,
-											'x-use-cache' => 0,
-//											'guidance_scale' => 30,
-//											'num_inference_steps' => 30,
-											'width' => 768,
-											'height' => 1024
-										));
+		$data = json_encode(array('inputs' => $input,));
 
+//		var_dump($data);
+//		exit;
+		
 		// Prepare options
 		$options = array(
 			'http' => array(
 			'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
 						"Content-Type: application/json\r\n",
 						"User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+//						"User-Agent: ".$this->userAgent." \r\n",
 			'method' => $httpMethod,
 			'content' => $data
 			)
@@ -255,8 +223,7 @@ class Huggingface {
 						return 429;
 					}else{
 						$timer += 30;
-						$granate = explode(":",$error['message']);
-						echo trim($granate[5]) ." not acted on.\n";
+						echo trim($error['message']) ." not acted on.\n";
 						if($this->logAll) $this->logString("Main: ". trim($granate[5]) . " not acted on.\n") ;
 						return 254;
 					}
@@ -266,16 +233,21 @@ class Huggingface {
 					return 255;
 				}
 			}
-			break; // we have a picture
+			break; // we have aa answer
 		} //end while
 		
 
-		// Write the image.
+		// Write inform
 		
-		$this->writeImage($result);
+//		var_dump($result);
 		
-		return 0;
-
+		$payload = json_decode($result);
+		//how do I print on screen with php
+//		var_dump($payload);
+		$payload = get_object_vars($payload[0]);
+//		var_dump($payload);
+		echo $payload['generated_text'];
+//		exit;
 	} 
 	
 	public function setModel($input){
@@ -284,7 +256,7 @@ class Huggingface {
 
 			if( $model['tag'] == trim($input) ){
 
-				$this->endPoint = Huggingface::INFERENCE.$model['model'];
+				$this->endPoint = HugChat::INFERENCE.$model['model'];
 				$this->sName = $model['tag'];
 				$this->prePrompt = $model['pre'];
 				$this->pastPrompt = $model['past'];
@@ -312,20 +284,12 @@ Set model to shortname of model
 /listmodels
 Listmodels
 
-/setnp
-Set a negative prompt
-
 /loop <prompt>
 Loop through loaded models with prompt.
 
 /loadmodels <path/name>
 <path/name> from home starting with slash>
 
-/shownp
-Show negative prompt
-
-/addnp
-Add to current Negative Prompt
 ';
 	}
 	
@@ -372,36 +336,6 @@ Add to current Negative Prompt
 		file_put_contents( $log , date("Y-m-d H:i:s") . " " . $string , FILE_APPEND );
 		
 		return;
-	}
-
-	
-	private function setExif($aiMessage,$id){
-
-		
-		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->userPrompt ."\n\nNeg: ".$this->negPrompt.'"';
-		$myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
-		$myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
-		$myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
-		$myM .= ' -M"set Xmp.photoshop.Credit '.$this->exiv2User.'"';
-		$myM .= ' -M"set Xmp.xmp.CreatorTool clsHuggingface"';
-		$myM .= ' -M"set Exif.Image.Software clsHuggingface"';
-		$myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
-		
-		$test = shell_exec("exiv2 $myM ".$id);
-	}
-	
-	private function writeImage($blob){
-		
-		$image = new Imagick();
-		$image->readImageBlob($blob);
-		$image->setImageFormat('png');
-		$id = $this->imgStore.'/'.$this->sName.'-'.date('jmdHms').'.png';
-		$image->writeImage($id);
-		if($this->exiv2) $this->setExif($aiMessage,$id);
-		echo "\nImage stored as $id\n";
-		if($this->logAll) $this->logString("Main: Image stored as $id\n") ;
-		return 0;
-
 	}
 	
 	public function loadModels($tpath){
