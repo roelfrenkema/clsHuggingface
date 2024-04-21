@@ -220,7 +220,7 @@ It is your task, with the information above, to answer the users prompt.';
 	private $aiInput;		//complete ai input
 	private $aiOutput;		//complete ai output
 	private $aiSkipper;		//used by some functions
-	public $aiLog;			//log convo to file
+	public $aiLog;			//log convo to file boolean
 	public $logPath;		//logging path
 	private $usrPrompt;		//userprompt preserved getInput()
 	private $chatHistory;		//Keep a history to emulate chat
