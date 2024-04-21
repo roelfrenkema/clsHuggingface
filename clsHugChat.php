@@ -231,7 +231,6 @@ It is your task, with the information above, to answer the users prompt.';
 	private $userAgent;		//Useragent string
 	private $userHome;		//User homedir
 	private $generatedText;		//return of model
-	private $messages;		//message structure
 	
 
 	/*
@@ -268,7 +267,7 @@ It is your task, with the information above, to answer the users prompt.';
 	//$this->arUser = $this->apiUser();
 	$this->useModels = array();
 	$this->aiModel = 'meta-llama/Llama-2-70b-chat-hf';
-	$this->clsVersion = '0.0.1b';
+	$this->clsVersion = '0.0.2b';
 	$this->aiMarkup = "text/plain";
 	$this->aiLanguage = "English";
 	$this->aiWrap = "0";
@@ -293,8 +292,7 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->usrPrompt = "> ";
 	$this->initChat();
 	$this->generatedText = "";
-	$this->message= array();
-	echo "Welcome to clsStraico $this->clsVersion - enjoy!\n\n";
+	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
 	}
  	/*
 	* Function: $userPrompt()
