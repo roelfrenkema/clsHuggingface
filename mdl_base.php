@@ -219,5 +219,21 @@ $this->useModels[] = array(
 	'pre' => 'storyboard sketch',
 	'past' => ''
 );
-
+$this->useModels[] = array(
+	'tag' => 'x',
+	'model' => '',
+	'pre' => '',
+	'past' => ''
+);
+/*
+ * 
+ * ? stablediffusionapi/photopedia-xl-v45
+ * ? UnfilteredAI/NSFW-gen-v2
+ * + EnD-Diffusers/duskfalls-artificial-photography has trigger
+ * + sam749/LEOSAM-s-ilmGirl-ltra-Ultra-ase-odel
+ * + stablediffusionapi/uber-realistic-porn-merge - interesting
+ * + stablediffusionapi/epicrealism-xl - doet zelfs de fisheye
+ * + stablediffusionapi/edge-of-realism
+ * + timlenardo/tdmx-edge-of-realism-dreambooth - weird
+ */
 ?>

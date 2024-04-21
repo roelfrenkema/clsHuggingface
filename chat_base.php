@@ -5,7 +5,7 @@
 //base model
 $this->useModels[] = array(
 	'tag' => 'mixtral',
-	'model' => 'mistralai/Mixtral-8x7B-Instruct-v0.2',
+	'model' => 'mistralai/Mixtral-8x7B-Instruct-v0.1',
 	'pre' => '',
 	'past' => ''
 );
@@ -25,6 +25,25 @@ $this->useModels[] = array(
 $this->useModels[] = array(
 	'tag' => 'zephyr',
 	'model' => 'HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
+	'tag' => 'llama',
+//	'model' => 'meta-llama/Llama-2-70b-chat-hf',
+	'model' => 'meta-llama/Meta-Llama-3-70B-Instruct',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
+	'tag' => 'microsoft',
+	'model' => 'microsoft/DialoGPT-large',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
+	'tag' => 'dolphin',
+	'model' => 'cognitivecomputations/dolphin-2.5-mixtral-8x7b',
 	'pre' => '',
 	'past' => ''
 );

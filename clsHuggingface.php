@@ -172,7 +172,7 @@ class Huggingface {
 
 	public function apiCompletion(){
 		
-		$input = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
+		$prompt = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
 
 		echo "\n\nEndpoint short name: ".$this->sName."\n";
 		//echo "Prompt : ".$input."\n";
@@ -183,28 +183,27 @@ class Huggingface {
 
 
 		// Prepare query data
-		$data = http_build_query(array('inputs' => $input,
-										'wait_for_model' => true,
-											'x-use-cache' => 0,
-											'negative_prompt' => $this->negPrompt,
-											'x-use-cache' => 0,
-//											'guidance_scale' => 30,
-//											'num_inference_steps' => 30,
-											'width' => 768,
-											'height' => 1024
-										));
+		$data = http_build_query(array('inputs' => $prompt,
+						'wait_for_model' => true,
+						'negative_prompt' => $this->negPrompt,
+						'guidance_scale' => 30,
+						'num_inference_steps' => 50,
+						'width' => 1024,
+						'height' => 768,
+						),
+					);
 
 		// Prepare options
 		$options = array(
 			'http' => array(
 			'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
-						"Content-Type: application/json\r\n",
-						"User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+				    "x-use-cache: 0\r\n" .
+				    "Content-Type: application/json\r\n" .
+				    "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
 			'method' => $httpMethod,
-			'content' => $data
-			)
+			'content' => $data,
+			),
 		);
-
 
 		// Create stream
 		$context = stream_context_create($options);

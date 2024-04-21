@@ -35,10 +35,7 @@ $hug->slUpdate = 30;
 
 //getmodels
 $hug->loadModels('/git/clsHuggingface/chat_base.php');
-
-// set startmodel
-$hug->setModel('gemma7b');
-
+$hug->setModel = "gemma7b";
 
 /*
     Start looping till finished with /exit
