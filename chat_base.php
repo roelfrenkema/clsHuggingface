@@ -10,6 +10,12 @@ $this->useModels[] = array(
 	'past' => ''
 );
 $this->useModels[] = array(
+	'tag' => 'nousmix',
+	'model' => 'NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO',
+	'pre' => '',
+	'past' => ''
+);
+$this->useModels[] = array(
 	'tag' => 'cohere',
 	'model' => 'CohereForAI/c4ai-command-r-plus',
 	'pre' => '',
@@ -30,7 +36,6 @@ $this->useModels[] = array(
 );
 $this->useModels[] = array(
 	'tag' => 'llama',
-//	'model' => 'meta-llama/Llama-2-70b-chat-hf',
 	'model' => 'meta-llama/Meta-Llama-3-70B-Instruct',
 	'pre' => '',
 	'past' => ''

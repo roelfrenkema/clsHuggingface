@@ -28,6 +28,7 @@ Detailed Instructions:
 Your task is to create a paper or article based on the information above, and the IDEA that the user will provide below.
 
 IDEA: ';
+	private const BASEROLE = 'You are a helpfull assistant.';
 	private const BBLOG = 'Craft a captivating and engaging 1000-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
 	private const DREAM = 'Act as an expert prompt engineer, with extensive experience in creating the best prompts for the text-to-image model Stable Difussion.
 
@@ -231,6 +232,8 @@ It is your task, with the information above, to answer the users prompt.';
 	private $userAgent;		//Useragent string
 	private $userHome;		//User homedir
 	private $generatedText;		//return of model
+	private $genUser;		//user content
+	private $genAssistant;		//assistant contant
 	
 
 	/*
@@ -292,6 +295,8 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->usrPrompt = "> ";
 	$this->initChat();
 	$this->generatedText = "";
+	$this->genUser = array();
+	$this->genAssistant = array();
 	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
 	}
  	/*
@@ -419,7 +424,7 @@ It is your task, with the information above, to answer the users prompt.';
 				$this->aiRole = "dream";
 				$this->initChat();
 			}
-			$this->agentChat("dream",trim(substr($input,7)));
+			$this->agentDo("dream",trim(substr($input,7)));
 
 		// Enhance a prompt
 		}elseif( substr($input,0,8) == "/enhance"){
@@ -517,9 +522,11 @@ It is your task, with the information above, to answer the users prompt.';
 			$this->aiRole = "cli";
 			$this->initChat();
 		    }
-		    if($this->chatRole= "") $this->chatTime();
+//		    if($this->chatRole= "") $this->chatTime();
 
-		    $answer = $this->apiCompletion($input);
+//		    $answer = $this->apiCompletionc(HugChat::BASEROLE,$input);
+		    $answer = $this->apiCompletion(HugChat::BASEROLE,$input);
+//		    $answer = $this->queryHuggingFaceAPI(HugChat::BASEROLE,$input);
 		    echo "\n".$answer."\n";
 		}
 	}
@@ -534,23 +541,20 @@ It is your task, with the information above, to answer the users prompt.';
 	* Returns the response content. At later time this will be
 	* adjusted to reflect the other information
 	*/
-	public function apiCompletion($input){
+	public function apiCompletion($sysRole,$userInput){
 
 	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
 	    $httpMethod = 'POST';
 	
 		// Store LLM input for debugging routine
-		$this->aiInput = $input;
+		$this->aiInput = $userInput;
 		    
-		// needs to become dynamic  
-		$sysprompt = "You are a helpful, respectful and honest assistant."; 
-
 //var_dump($this->generatedText);
 
 		if(! $this->generatedText){
-		    $this->generatedText = '<s>[INST] <<SYS>>'.$sysprompt.'<</SYS>>'.$input.'[/INST]';
+		    $this->generatedText = '<s>[INST] <<SYS>>'.$sysRole.'<</SYS>>'.$userInput.'[/INST]';
 		}else{
-		    $this->generatedText .= '</s><s>[INST]'.$input.'[/INST]';
+		    $this->generatedText .= '</s><s>[INST]'.$userInput.'[/INST]';
 		}
 //var_dump($this->generatedText);
 		
@@ -624,6 +628,182 @@ It is your task, with the information above, to answer the users prompt.';
 			return $answer;
 		}
 	} 
+	/*
+	* Function: apiCompletionc($sysRole,$userInput)
+	* Input   : $sysRole - the task for system
+	* Input   : $userInput - is the prompt
+	* Output  : returns response content
+	* Purpose : Complete an API call with the prompt info 
+	*
+	* Remarks:
+	* 
+	* Returns the response content. At later time this will be
+	* adjusted to reflect the other information
+	*/
+	public function apiCompletionc($sysRole,$userInput){
+
+	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
+	    $httpMethod = 'POST';
+	
+		// Store LLM input for debugging routine
+		$this->aiInput = $userInput;
+		    
+//var_dump($endPoint);
+
+		if (!$this->genUser) {
+		    // For the first conversation turn, only include the system prompt and user input
+		    $input = $sysRole . "\n\n" . $userInput;
+		} else {
+		    // For subsequent turns, include previous conversation history
+		        $input = [  "past_user_inputs" => $this->genUser,
+				    "generated_responses" => $this->genAssistant,
+				    "text" => $userInput];
+		}
+echo "=== genuser ========================================================\n";
+var_dump($this->genUser);
+echo "=== genassistant ===================================================\n";
+var_dump($this->genAssistant);
+echo "=== input ==========================================================\n";
+var_dump($input);
+echo "====================================================================\n";
+		
+		//need to become userdefined
+		$parameters = array(
+				    'do_sample' => true,
+				    'return_full_text' => false,
+				    'temperature' => 0.6,
+//				    'max_new_tokens' => 2048,
+		);
+		// Prepare query
+$data = json_encode([
+    'inputs' => $input,
+//    'parameters' => $parameters,
+]);
+
+echo "=== rawdata ========================================================\n";
+var_dump($data);
+//exit;
+echo "====================================================================\n";
+		// Prepare options
+		$options = array(
+			'http' => array(
+			'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
+				    "Content-Type: application/json\r\n".
+				    "User-Agent: ".$this->userAgent." \r\n",
+			'method' => $httpMethod,
+			'content' => $data,
+			)
+		);
+
+		// Create stream
+		$context = stream_context_create($options);
+
+		// Temporarily disable error reporting
+		$previous_error_reporting = error_reporting(0);
+
+		// Communicate
+		$result = @file_get_contents($endPoint, false, $context);
+
+		// Check if an error occurred
+		if ($result === false) {
+			$error = error_get_last();
+			if ($error !== null) {
+				$message = explode(":",$error['message']);
+				echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
+				return;
+			} else {
+				echo "An unknown error occurred while fetching the webpage. Please try again!\n";
+				return;
+			}
+		}
+		
+		// Restore the previous error reporting level
+		error_reporting($previous_error_reporting);
+   
+		$this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
+		
+//var_dump($this->aiOutput[0]["generated_text"]);
+
+//exit;
+		//extract continue chat
+//		$this->generatedText = $this->aiOutput[0]['generated_text'];
+		
+		//extract answer
+//		$larray = explode('[/INST]',$this->generatedText);
+		$answer = $this->aiOutput[0]["generated_text"];
+		
+
+array_push($this->genUser, $userInput);
+array_push($this->genAssistant, $answer);
+	
+		//format output and return it
+		if ($this->aiWrap > 0 ){
+			return wordwrap($answer,$this->aiWrap,"\n");
+		} else {
+			return $answer;
+		}
+
+	}
+	 
+function queryHuggingFaceAPI($sysRole,$userInput) {
+
+
+    $apiUrl = "https://api-inference.huggingface.co/models/".$this->aiModel;
+    $headers = [
+        "Authorization: Bearer " . $this->apiKey,
+        "Content-Type: application/json"
+    ];
+
+var_dump($this->genUser);
+var_dump($this->genAssistant);
+   
+    if( $this->genUser ){
+	
+	$input =  ["past_user_inputs" => $this->genUser,
+		    "generated_responses" => $this->genAssistant,
+		    "text" => $userInput,
+		    ];
+    }else{
+	$input = $userInput;
+    };
+
+
+    $payload = json_encode([
+        "inputs" => $input
+    ]);
+
+var_dump($payload);
+
+    // Initialize cURL session
+    $ch = curl_init($apiUrl);
+
+    // Set cURL Options
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+
+    // Execute cURL session
+    $response = curl_exec($ch);
+
+    // Check for cURL errors
+    if (curl_errno($ch)) {
+        die('Curl error: ' . curl_error($ch));
+    }
+
+    // Close cURL session
+    curl_close($ch);
+
+var_dump(json_decode($response, true));
+$decode = json_decode($response, true);
+$answer = $decode[0]['generated_text'];
+
+array_push($this->genUser, $userInput);
+array_push($this->genAssistant, $answer);
+
+    return $answer;
+}
+
 
 	/*
 	* Function: agentChat($input)
@@ -692,14 +872,13 @@ It is your task, with the information above, to answer the users prompt.';
 	* Remarks:
 	* 
 	*/
-	private function agentDo($name,$input){
+	private function agentDo($name,$userInput){
 
-		$class = "Straico";
+		$class = "HugChat";
 		$constant = strtoupper($name);
 	    
-		$aiMessage = constant("{$class}::{$constant}").$input; 
-
-		$apiOutput=$this->apiCompletion($aiMessage);
+		$sysRole = constant("{$class}::{$constant}");
+		$apiOutput=$this->apiCompletion($sysRole,$userInput);
 		echo "\n$apiOutput\n";
 	    
 	    return;
@@ -1187,6 +1366,8 @@ using _PAGE_ as a placeholder
 	*/
 	 public function setModel($input){
 		$this->generatedText = array();
+		$this->genUser = array();
+		$this->genAssistant = array();
 		$intPoint = intval($input);
 		$this->aiModel = $this->useModels[$intPoint - 1]['model'];
 	}
