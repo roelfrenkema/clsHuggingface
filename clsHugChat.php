@@ -326,6 +326,11 @@ It is your task, with the information above, to answer the users prompt.';
 		}elseif( trim($input) == "/helpme"){
 			$this->listHelp();
 
+		// Show helppage
+		}elseif( trim($input) == "/histclear"){
+			$this->genUser = array();
+			$this->genAssistant = array();
+
 		// Get a webpage
 		}elseif( substr($input,0,8) == "/getpage"){
 			$this->getWebpage(substr($input,9));
@@ -342,7 +347,7 @@ It is your task, with the information above, to answer the users prompt.';
 		// Start writing to file
 		}elseif( substr($input,0,9) == "/logon"){
 			$this->aiLog=true;
-			echo "Appending conversation to ".__DIR__."/clsStraico.txt\n";
+			echo "Appending conversation to ".$this->logPath."/clsHugchat.txt\n";
 
 		// Stop history
 		}elseif( substr($input,0,8) == "/histoff"){
@@ -620,6 +625,11 @@ It is your task, with the information above, to answer the users prompt.';
 		$larray = explode('[/INST]',$this->generatedText);
 		$answer = end($larray);
 		
+		if($this->aiLog){
+			$file=$this->logPath."/clsHugchat.txt";
+			file_put_contents($file, "ME:\n".$userInput."\n\n", FILE_APPEND);
+			file_put_contents($file, $this->aiModel.":\n".$answer."\n\n", FILE_APPEND);
+		}
 	
 		//format output and return it
 		if ($this->aiWrap > 0 ){
@@ -1273,6 +1283,7 @@ Alternatively use one of the following internal commands.
     /histon		- Enable history
     /histload		- Load history
     /histsave		- Save history
+    /histclear		- Clear history
     /listmodels          - List available models.
     /setlanguage         - Set prefered language.  
     /setmarkup           - Set prefered markup.
