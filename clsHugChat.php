@@ -215,7 +215,6 @@ It is your task, with the information above, to answer the users prompt.';
 	private $apiKey;		//secure apiKey
 	public $arUser;			//filled with userdata
 	private $clsVersion;		//version set in construct
-	private $clsDebug;		//?
 	public $webPage;		//filled with _PAGE_ data
 	public $aiWrap;			//wrap output.
 	private $aiInput;		//complete ai input
@@ -281,7 +280,6 @@ It is your task, with the information above, to answer the users prompt.';
 	}	
 	$this->aiTone = "neutral";
 	$this->aiTarget = "anyone";
-	$this->clsDebug = false;
 	$this->aiInput = '';
 	$this->aiOutput = '';
 	$this->aiRole = 'cli';		//start in role cli
@@ -326,11 +324,6 @@ It is your task, with the information above, to answer the users prompt.';
 		}elseif( trim($input) == "/helpme"){
 			$this->listHelp();
 
-		// Show helppage
-		}elseif( trim($input) == "/histclear"){
-			$this->genUser = array();
-			$this->genAssistant = array();
-
 		// Get a webpage
 		}elseif( substr($input,0,8) == "/getpage"){
 			$this->getWebpage(substr($input,9));
@@ -365,9 +358,14 @@ It is your task, with the information above, to answer the users prompt.';
 		}elseif( substr($input,0,9) == "/histsave"){
 			$this->saveHistory(trim(substr($input,10)));
 
-		// Start history
+		// load history
 		}elseif( substr($input,0,9) == "/histload"){
 			$this->loadHistory(trim(substr($input,10)));
+
+		// clear history
+		}elseif( trim($input) == "/histclear"){
+			$this->genUser = array();
+			$this->genAssistant = array();
 
 		// Set language
 		}elseif( substr($input,0,12) == "/setlanguage"){
@@ -883,12 +881,17 @@ array_push($this->genAssistant, $answer);
 	* 
 	*/
 	private function agentDo($name,$userInput){
-
+		
+		$this->generatedText = array();
+		$this->genUser = array();
+		$this->genAssistant = array();
+		    
 		$class = "HugChat";
 		$constant = strtoupper($name);
 	    
 		$sysRole = constant("{$class}::{$constant}");
 		$apiOutput=$this->apiCompletion($sysRole,$userInput);
+
 		echo "\n$apiOutput\n";
 	    
 	    return;

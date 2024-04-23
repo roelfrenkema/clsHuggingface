@@ -255,8 +255,8 @@ class Huggingface {
 					}else{
 						$timer += 30;
 						$granate = explode(":",$error['message']);
-						echo trim($granate[5]) ." not acted on.\n";
-						if($this->logAll) $this->logString("Main: ". trim($granate[5]) . " not acted on.\n") ;
+						echo end($granate) ." not acted on.\n";
+						if($this->logAll) $this->logString("Main: ". end($granate) . " not acted on.\n") ;
 						return 254;
 					}
 				} else {
