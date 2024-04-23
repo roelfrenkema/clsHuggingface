@@ -24,14 +24,30 @@ include('clsHugChat.php');
 $aiMessage = "";
 $hug = new HugChat;
 
-// Logging true/false
+/*
+ * Logpath now equals a working directory. All files are saved here like
+ * f.i. the history files omitting the need to use a path in their names
+ * logfiles will have extension log and history files will have the
+ * extension hist.
+ */ 
 $hug->logAll = false;
+$hug->logPath = '/home/';
 
-// Timeout for /loop
-$hug->slMax = 300;
+/*
+* pipe setting
+* placeholder %prompt% and %answer will be replaced by the prompt and AI answer.
+* then it will be executed in a shell.
+* 
+* $hug->userPipe = 'echo "%prompt%" >> ~/myprompts.txt';
+*/
 
-// Amount to add to sleep at each loop
-$hug->slUpdate = 30;
+
+/*
+ * The history switch is used to set chatformat on or off at start.
+ * When it is on user input and ai out put are stacked to build a
+ * true conversation.
+ */
+$hug->historySwitch = true;
 
 //getmodels
 $hug->loadModels('/git/clsHuggingface/chat_base.php');

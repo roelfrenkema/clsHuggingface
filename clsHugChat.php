@@ -28,7 +28,7 @@ Detailed Instructions:
 Your task is to create a paper or article based on the information above, and the IDEA that the user will provide below.
 
 IDEA: ';
-	private const BASEROLE = 'You are a helpfull assistant.';
+	private const BASEROLE = "You are a helpfull friend. We chat in a friendly and familiar way with eachother withot formalities like I am an artificial intelligence or I cannot have feelings. We are friends and we act as friends.";
 	private const BBLOG = 'Craft a captivating and engaging 1000-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
 	private const DREAM = 'Act as an expert prompt engineer, with extensive experience in creating the best prompts for the text-to-image model Stable Difussion.
 
@@ -233,6 +233,7 @@ It is your task, with the information above, to answer the users prompt.';
 	private $generatedText;		//return of model
 	private $genUser;		//user content
 	private $genAssistant;		//assistant contant
+	public $userPipe;		//user pipecommand
 	
 
 	/*
@@ -287,7 +288,7 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->chatHistory = array();
 	$this->chatRole = "";
 	$this->historySwitch = false;
-	$this->clsVersion = '0.0.3b';
+	$this->clsVersion = '0.0.1';
 	$this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
 	$this->userHome = $_ENV['HOME'];
 	$this->usrPrompt = "> ";
@@ -295,6 +296,7 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->generatedText = "";
 	$this->genUser = array();
 	$this->genAssistant = array();
+	$this->userPipe = "";
 	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
 	}
  	/*
@@ -364,6 +366,7 @@ It is your task, with the information above, to answer the users prompt.';
 
 		// clear history
 		}elseif( trim($input) == "/histclear"){
+			$this->generatedText = "";
 			$this->genUser = array();
 			$this->genAssistant = array();
 
@@ -387,6 +390,16 @@ It is your task, with the information above, to answer the users prompt.';
 		// del history	
 		}elseif( substr($input,0,9) == "/delhistory"){
 			$this->chatHistory ="";
+
+		// Set a pipe command
+		}elseif( substr($input,0,8) == "/setpipe"){
+			$this->userPipe = trim(substr($input,9));
+			echo "Your pipe is: ".$this->userPipe."\n";
+
+		// Unset a pipe command
+		}elseif( trim($input) == "/unsetpipe"){
+			$this->userPipe = "";
+			echo "Your pipe has been unset\n";
 		
 		// Set target audience	 
 		}elseif( substr($input,0,10) == "/settarget"){
@@ -525,119 +538,13 @@ It is your task, with the information above, to answer the users prompt.';
 			$this->aiRole = "cli";
 			$this->initChat();
 		    }
-//		    if($this->chatRole= "") $this->chatTime();
 
-//		    $answer = $this->apiCompletionc(HugChat::BASEROLE,$input);
 		    $answer = $this->apiCompletion(HugChat::BASEROLE,$input);
-//		    $answer = $this->queryHuggingFaceAPI(HugChat::BASEROLE,$input);
 		    echo "\n".$answer."\n";
 		}
 	}
 	/*
-	* Function: apiCompletion($aiMessage)
-	* Input   : $aiMessage - is the prompt
-	* Output  : returns response content
-	* Purpose : Complete an API call with the prompt info 
-	*
-	* Remarks:
-	* 
-	* Returns the response content. At later time this will be
-	* adjusted to reflect the other information
-	*/
-	public function apiCompletion($sysRole,$userInput){
-
-	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
-	    $httpMethod = 'POST';
-	
-		// Store LLM input for debugging routine
-		$this->aiInput = $userInput;
-		    
-//var_dump($this->generatedText);
-
-		if(! $this->generatedText){
-		    $this->generatedText = '<s>[INST] <<SYS>>'.$sysRole.'<</SYS>>'.$userInput.'[/INST]';
-		}else{
-		    $this->generatedText .= '</s><s>[INST]'.$userInput.'[/INST]';
-		}
-//var_dump($this->generatedText);
-		
-		//need to become userdefined
-		$parameters = array(
-				    'do_sample' => true,
-				    'return_full_text' => true,
-				    'temperature' => 0.6,
-				    'max_new_tokens' => 2048,
-//				    'stream' => true,
-		);
-		
-		// Prepare query
-		$data = json_encode(array(  'inputs' => $this->generatedText,
-					    'parameters' => $parameters,
-					)
-				    );
-//var_dump($data);
-//exit;
-		// Prepare options
-		$options = array(
-			'http' => array(
-			'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
-				    "Content-Type: application/json\r\n".
-				    "User-Agent: ".$this->userAgent." \r\n",
-			'method' => $httpMethod,
-			'content' => $data,
-			)
-		);
-
-		// Create stream
-		$context = stream_context_create($options);
-
-		// Temporarily disable error reporting
-		$previous_error_reporting = error_reporting(0);
-
-		// Communicate
-		$result = @file_get_contents($endPoint, false, $context);
-
-		// Check if an error occurred
-		if ($result === false) {
-			$error = error_get_last();
-			if ($error !== null) {
-				$message = explode(":",$error['message']);
-				echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
-				return;
-			} else {
-				echo "An unknown error occurred while fetching the webpage. Please try again!\n";
-				return;
-			}
-		}
-		
-		// Restore the previous error reporting level
-		error_reporting($previous_error_reporting);
-   
-		$this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
-		
-//var_dump($this->aiOutput);
-		//extract continue chat
-		$this->generatedText = $this->aiOutput[0]['generated_text'];
-		
-		//extract answer
-		$larray = explode('[/INST]',$this->generatedText);
-		$answer = end($larray);
-		
-		if($this->aiLog){
-			$file=$this->logPath."/clsHugchat.txt";
-			file_put_contents($file, "ME:\n".$userInput."\n\n", FILE_APPEND);
-			file_put_contents($file, $this->aiModel.":\n".$answer."\n\n", FILE_APPEND);
-		}
-	
-		//format output and return it
-		if ($this->aiWrap > 0 ){
-			return wordwrap($answer,$this->aiWrap,"\n");
-		} else {
-			return $answer;
-		}
-	} 
-	/*
-	* Function: apiCompletionc($sysRole,$userInput)
+	* Function: apiCompletion($sysRole,$userInput)
 	* Input   : $sysRole - the task for system
 	* Input   : $userInput - is the prompt
 	* Output  : returns response content
@@ -648,170 +555,97 @@ It is your task, with the information above, to answer the users prompt.';
 	* Returns the response content. At later time this will be
 	* adjusted to reflect the other information
 	*/
-	public function apiCompletionc($sysRole,$userInput){
-
+	public function apiCompletion($sysRole,$userInput){
+	    
 	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
 	    $httpMethod = 'POST';
 	
-		// Store LLM input for debugging routine
-		$this->aiInput = $userInput;
+	    // Store LLM input for debugging routine
+	    $this->aiInput = $userInput;
 		    
-//var_dump($endPoint);
-
-		if (!$this->genUser) {
-		    // For the first conversation turn, only include the system prompt and user input
-		    $input = $sysRole . "\n\n" . $userInput;
-		} else {
-		    // For subsequent turns, include previous conversation history
-		        $input = [  "past_user_inputs" => $this->genUser,
-				    "generated_responses" => $this->genAssistant,
-				    "text" => $userInput];
-		}
-echo "=== genuser ========================================================\n";
-var_dump($this->genUser);
-echo "=== genassistant ===================================================\n";
-var_dump($this->genAssistant);
-echo "=== input ==========================================================\n";
-var_dump($input);
-echo "====================================================================\n";
+	    if (! $this->chatHistory ) {
+		// For the first conversation turn, only include the system prompt and user input
+		$input = "<|system|>\n".$sysRole . "<|end|>\n<|user|>\n" . "Time and date is ".date("Y-m-d H:i:s")."\n".$userInput."<|end|>\n<|assistant|>\n";
+	    } else {
+		//rebuild converstation
+		$input = $this->chatHistory;
+		//add new prompt
+		$input .= "<|user|>\n" . $userInput."<|end|>\n<|assistant|>\n";
+	    }
+	    
+	    //update history
+	    $this->chatHistory = $input;    
 		
-		//need to become userdefined
-		$parameters = array(
-				    'do_sample' => true,
-				    'return_full_text' => false,
-				    'temperature' => 0.6,
-//				    'max_new_tokens' => 2048,
-		);
-		// Prepare query
-$data = json_encode([
-    'inputs' => $input,
-//    'parameters' => $parameters,
-]);
+	    //need to become userdefined
+	    $parameters = array(
+				'do_sample' => false,
+				'return_full_text' => false,
+				'temperature' => 0.6,
+				'max_new_tokens' => 100,
+				);
+				
+	    // Prepare query
+	    $data = json_encode([
+				'inputs' => $input,
+				'parameters' => $parameters,
+				]);
 
-echo "=== rawdata ========================================================\n";
-var_dump($data);
-//exit;
-echo "====================================================================\n";
-		// Prepare options
-		$options = array(
-			'http' => array(
-			'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
-				    "Content-Type: application/json\r\n".
-				    "User-Agent: ".$this->userAgent." \r\n",
-			'method' => $httpMethod,
-			'content' => $data,
-			)
-		);
+	    // Prepare options
+	    $options = array(
+				'http' => array(
+						'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
+							    "Content-Type: application/json\r\n".
+							    "User-Agent: ".$this->userAgent." \r\n",
+						'method' => $httpMethod,
+						'content' => $data,
+						)
+			    );
 
-		// Create stream
-		$context = stream_context_create($options);
+	    // Create stream
+	    $context = stream_context_create($options);
 
-		// Temporarily disable error reporting
-		$previous_error_reporting = error_reporting(0);
+	    // Temporarily disable error reporting
+	    $previous_error_reporting = error_reporting(0);
 
-		// Communicate
-		$result = @file_get_contents($endPoint, false, $context);
+	    // Communicate
+	    $result = @file_get_contents($endPoint, false, $context);
 
-		// Check if an error occurred
-		if ($result === false) {
-			$error = error_get_last();
-			if ($error !== null) {
-				$message = explode(":",$error['message']);
-				echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
-				return;
-			} else {
-				echo "An unknown error occurred while fetching the webpage. Please try again!\n";
-				return;
-			}
-		}
+	    // Check if an error occurred
+	    if ($result === false) {
+		    $error = error_get_last();
+		    if ($error !== null) {
+			    $message = explode(":",$error['message']);
+			    echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
+			    return;
+		    } else {
+			    echo "An unknown error occurred while fetching the webpage. Please try again!\n";
+			    return;
+		    }
+	    }
 		
-		// Restore the previous error reporting level
-		error_reporting($previous_error_reporting);
+	    // Restore the previous error reporting level
+	    error_reporting($previous_error_reporting);
    
-		$this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
+	    $this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
 		
-//var_dump($this->aiOutput[0]["generated_text"]);
+	    //extract continue chat
+	    $this->generatedText = $this->aiOutput[0]['generated_text'];
+		
+	    //extract answer
+	    $chunks = explode("<|end|>",$this->generatedText);
+	    $answer = $chunks[0];
 
-//exit;
-		//extract continue chat
-//		$this->generatedText = $this->aiOutput[0]['generated_text'];
-		
-		//extract answer
-//		$larray = explode('[/INST]',$this->generatedText);
-		$answer = $this->aiOutput[0]["generated_text"];
-		
+	    $this->chatHistory .= "$answer<|end|>\n";
 
-array_push($this->genUser, $userInput);
-array_push($this->genAssistant, $answer);
+	    if( $this->userPipe ) $this->apiPipe();
 	
-		//format output and return it
-		if ($this->aiWrap > 0 ){
-			return wordwrap($answer,$this->aiWrap,"\n");
-		} else {
-			return $answer;
-		}
-
+	    //format output and return it
+	    if ($this->aiWrap > 0 ){
+		return wordwrap($answer,$this->aiWrap,"\n");
+	    } else {
+		return $answer;
+	    }
 	}
-	 
-function queryHuggingFaceAPI($sysRole,$userInput) {
-
-
-    $apiUrl = "https://api-inference.huggingface.co/models/".$this->aiModel;
-    $headers = [
-        "Authorization: Bearer " . $this->apiKey,
-        "Content-Type: application/json"
-    ];
-
-var_dump($this->genUser);
-var_dump($this->genAssistant);
-   
-    if( $this->genUser ){
-	
-	$input =  ["past_user_inputs" => $this->genUser,
-		    "generated_responses" => $this->genAssistant,
-		    "text" => $userInput,
-		    ];
-    }else{
-	$input = $userInput;
-    };
-
-
-    $payload = json_encode([
-        "inputs" => $input
-    ]);
-
-var_dump($payload);
-
-    // Initialize cURL session
-    $ch = curl_init($apiUrl);
-
-    // Set cURL Options
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-
-    // Execute cURL session
-    $response = curl_exec($ch);
-
-    // Check for cURL errors
-    if (curl_errno($ch)) {
-        die('Curl error: ' . curl_error($ch));
-    }
-
-    // Close cURL session
-    curl_close($ch);
-
-var_dump(json_decode($response, true));
-$decode = json_decode($response, true);
-$answer = $decode[0]['generated_text'];
-
-array_push($this->genUser, $userInput);
-array_push($this->genAssistant, $answer);
-
-    return $answer;
-}
-
 
 	/*
 	* Function: agentChat($input)
@@ -991,6 +825,27 @@ array_push($this->genAssistant, $answer);
 		error_reporting($previous_error_reporting);
 
 		return json_decode($result, JSON_OBJECT_AS_ARRAY);
+	}
+	/*
+	* Function: apiPipe()
+	* Input   : none
+	* Output  : a shell pipe
+	* Purpose : Use apiOutput elsewhere
+	*
+	* Remarks:
+	* 
+	*/
+	private function apiPipe(){
+	    
+	    if( ! $this->userPipe ) return;
+	    
+	    //tokenreplacement
+	    $temp = str_ireplace("%prompt%", $this->aiInput, $this->userPipe);
+	    $temp2 = str_ireplace("%answer%", $this->aiAnswer, $temp);
+
+	    `$temp2`;
+	    
+	    return;
 	}
 	/*
 	* Function: chatTime()
@@ -1291,6 +1146,8 @@ Alternatively use one of the following internal commands.
     /setlanguage         - Set prefered language.  
     /setmarkup           - Set prefered markup.
     /setmodel <int>      - Set the active model to number of model.
+    /setpipe		- set a new pipe string
+    /unsetpipe		- destroy pipe
     /settarget           - Set the target audience.
     /settone             - Set prefered tone for answer.
     /setwrap		- Set line lenght. Default = noformat.
