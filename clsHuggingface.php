@@ -114,7 +114,7 @@ class Huggingface {
 
 		// Set model	
 		}elseif( substr($input,0,9) == "/setmodel"){
-			 $this->setModel(substr($input,10));
+			$answer = $this->setModel(substr($input,10));
 
 		// Show current negative prompt	
 		}elseif( $input == "/shownp"){
@@ -147,7 +147,7 @@ class Huggingface {
 
 		//  lastcheck on not existing command	
 		}elseif( substr($input,0,1) == "/"){
-			echo "\nWARNING COMMAND: $input UNKNOWN\n\n";
+			$answer = "\nWARNING COMMAND: $input UNKNOWN\n\n";
 			$this->help();
 
 
@@ -156,6 +156,8 @@ class Huggingface {
 			$this->userPrompt = trim($this->prePrompt.' '.$input.' '.$this->pastPrompt);
 			$answer = $this->apiCompletion($this->userPrompt);
 		}
+		
+	    echo "$answer\n";
 	}
 
    /*
@@ -189,7 +191,7 @@ class Huggingface {
 						'guidance_scale' => 30,
 						'num_inference_steps' => 50,
 						'width' => 1024,
-						'height' => 768,
+						'height' => 1024,
 						),
 					);
 
@@ -290,9 +292,7 @@ class Huggingface {
 			}
 		}
 
-		echo "\nModel is: $this->sName\n";
-		
-		return;
+		return "\nModel is: $this->sName\n";
 	}
 	
 	private function help(){
@@ -375,16 +375,18 @@ Add to current Negative Prompt
 
 	
 	private function setExif($aiMessage,$id){
-
 		
 		$myM =  '-M"set Exif.Image.ImageDescription '."\nPrompt: ". $this->userPrompt ."\n\nNeg: ".$this->negPrompt.'"';
+		$myM .= '-M"set Iptc.Application2.Subject '."\nPrompt: ". $this->userPrompt ."\n\nNeg: ".$this->negPrompt.'"';
 		$myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
+		$myM .= ' -M"set Iptc.Application2.Copyright '.$this->exiv2Copy.'"';
 		$myM .= ' -M"set Xmp.photoshop.Credit '.$this->exiv2User.'"';
 		$myM .= ' -M"set Xmp.xmp.CreatorTool clsHuggingface"';
 		$myM .= ' -M"set Exif.Image.Software clsHuggingface"';
 		$myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
+		$myM .= ' -M"set Iptc.Application2.Subject '.$this->endPoint.'"';
 		
 		$test = shell_exec("exiv2 $myM ".$id);
 	}
@@ -394,7 +396,7 @@ Add to current Negative Prompt
 		$image = new Imagick();
 		$image->readImageBlob($blob);
 		$image->setImageFormat('png');
-		$id = $this->imgStore.'/'.$this->sName.'-'.date('jmdHms').'.png';
+		$id = $this->imgStore.$this->sName.'-'.date('jmdHms').'.png';
 		$image->writeImage($id);
 		if($this->exiv2) $this->setExif($aiMessage,$id);
 		echo "\nImage stored as $id\n";

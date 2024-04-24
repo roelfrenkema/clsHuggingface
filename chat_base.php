@@ -42,7 +42,7 @@ $this->useModels[] = array(
 );
 $this->useModels[] = array(
 	'tag' => 'microsoft',
-	'model' => 'microsoft/DialoGPT-large',
+	'model' => 'microsoft/Phi-3-mini-128k-instruct',
 	'pre' => '',
 	'past' => ''
 );
