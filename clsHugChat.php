@@ -210,6 +210,7 @@ It is your task, with the information above, to answer the users prompt.';
 	private $aiOutput;		//complete ai output
 	private $apiKey;		//secure apiKey
 	private $chatHistory;		//Keep a history to emulate chat
+	private $includeDir = __DIR__.'/include/';
 	private $histArray;		//Keep a history to emulate chat
 	private $clsVersion;		//version set in construct
 	private $storeHistory;		//Temporary store history
@@ -277,7 +278,8 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->histArray = array();
 	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
 	}
- 	/*
+
+	/*
 	* Function: $userPrompt()
 	* Input   : keystrokes.
 	* Output  : depends on user input
@@ -498,7 +500,9 @@ It is your task, with the information above, to answer the users prompt.';
 	    $parameters = [
 				'do_sample' => false,
 				'return_full_text' => false,
-				'temperature' => 0.6,
+				"top_k" => 50,
+				"temperature" => 0.7,
+				"repetition_penalty" => 1.1,
 				'max_new_tokens' => 1024,
 			    ];
 				
@@ -536,7 +540,7 @@ It is your task, with the information above, to answer the users prompt.';
 			    echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
 			    return;
 		    } else {
-			    echo "An unknown error occurred while fetching the webpage. Please try again!\n";
+			    echo "An unknown error occurred while fetching your answer. Please try again!\n";
 			    return;
 		    }
 	    }
@@ -560,7 +564,7 @@ It is your task, with the information above, to answer the users prompt.';
 		file_put_contents($file, "ME:\n".$this->aiInput."\n\n", FILE_APPEND);
 		file_put_contents($file, $this->aiModel.":\n".$answer."\n\n", FILE_APPEND);
 	    }
-
+	    
 	    if( $this->userPipe ) $this->apiPipe();
 	
 	    //format output and return it
