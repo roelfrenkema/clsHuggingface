@@ -210,6 +210,7 @@ It is your task, with the information above, to answer the users prompt.';
 	private $aiOutput;		//complete ai output
 	private $apiKey;		//secure apiKey
 	private $chatHistory;		//Keep a history to emulate chat
+	private $histArray;		//Keep a history to emulate chat
 	private $clsVersion;		//version set in construct
 	private $storeHistory;		//Temporary store history
 	private $userAgent;		//Useragent string
@@ -273,6 +274,7 @@ It is your task, with the information above, to answer the users prompt.';
 	$this->userHome = $_ENV['HOME'];
 	$this->usrPrompt = "> ";
 	$this->userPipe = "";
+	$this->histArray = array();
 	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
 	}
  	/*
@@ -456,6 +458,7 @@ It is your task, with the information above, to answer the users prompt.';
 		// Process user input	
 		}else{
 		    $answer = $this->apiCompletion(HugChat::BASEROLE,$input);
+		    //$answer = $this->chatWithHuggingFace(HugChat::BASEROLE,$input);
 		}
 
 	    echo "\n".$answer."\n";
@@ -475,48 +478,46 @@ It is your task, with the information above, to answer the users prompt.';
 	public function apiCompletion($sysRole,$userInput){
 	    
 	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
-	    $httpMethod = 'POST';
 	
 	    // Store LLM input for debugging routine
 	    $this->aiInput = $userInput;
 		    
 	    if (! $this->chatHistory ) {
 		// For the first conversation turn, only include the system prompt and user input
-		$input = "<|system|>\n".$sysRole . "<|end|>\n<|user|>\n" . "Time and date is ".date("Y-m-d H:i:s")."\n".$userInput."<|end|>\n<|assistant|>\n";
+		$this->chatHistory = "<|system|>\n".$sysRole . "<|end|>\n";
+		$this->chatHistory .= "<|user|>\n" . "Time and date is ".date("Y-m-d H:i:s")."\n".$userInput."<|end|>\n";
+		$this->chatHistory .= "<|assistant|>\n";
 	    } else {
-		//rebuild converstation
-		$input = $this->chatHistory;
-		//add new prompt
-		$input .= "<|user|>\n" . $userInput."<|end|>\n<|assistant|>\n";
+		//build converstation
+		$this->chatHistory .= "<|user|>\n" . $userInput."<|end|>\n";
+		$this->chatHistory .= "<|assistant|>\n";
 	    }
-	    
-	    //update history
-	    $this->chatHistory = $input;    
+
 		
 	    //need to become userdefined
-	    $parameters = array(
+	    $parameters = [
 				'do_sample' => false,
 				'return_full_text' => false,
 				'temperature' => 0.6,
 				'max_new_tokens' => 1024,
-				);
+			    ];
 				
 	    // Prepare query
-	    $data = json_encode([
-				'inputs' => $input,
+	    $payload = json_encode([
+				'inputs' => $this->chatHistory,
 				'parameters' => $parameters,
 				]);
 
 	    // Prepare options
-	    $options = array(
-				'http' => array(
-						'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
-							    "Content-Type: application/json\r\n".
-							    "User-Agent: ".$this->userAgent." \r\n",
-						'method' => $httpMethod,
-						'content' => $data,
-						)
-			    );
+	    $options = [
+		'http' => [
+		    'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
+				"Content-Type: application/json\r\n".
+				"User-Agent: ".$this->userAgent." \r\n",
+		    'method' => 'POST',
+		    'content' => $payload,
+			    ],
+			];
 
 	    // Create stream
 	    $context = stream_context_create($options);
@@ -546,10 +547,10 @@ It is your task, with the information above, to answer the users prompt.';
 	    $this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
 		
 	    //extract continue chat
-	    $this->generatedText = $this->aiOutput[0]['generated_text'];
+	    $generatedText = $this->aiOutput[0]['generated_text'];
 		
 	    //extract answer
-	    $chunks = explode("<|end|>",$this->generatedText);
+	    $chunks = explode("<|end|>",$generatedText);
 	    $answer = $chunks[0];
 
 	    $this->chatHistory .= "$answer<|end|>\n";
@@ -569,6 +570,56 @@ It is your task, with the information above, to answer the users prompt.';
 		return $answer;
 	    }
 	}
+
+function chatWithHuggingFace($sysRole,$userInput) {
+    /* 
+     * This is a test function
+     * DO NOT USE IT WILL BREAK
+     * 
+     */
+    if ( empty( $this->histArray ) ) $this->histArray[] = ["role" => "system", "content" => $sysRole];
+
+    $this->histArray[] = ["role" => "user", "content" => $userInput];
+    
+    // Make API request
+    //$url = "https://api-inference.huggingface.co/models/openai-gpt";
+    $url = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
+
+    $data = [
+        "inputs" => $this->histArray,
+        "parameters" => [
+	    "return_full_text" => false,
+            "top_k" => 50,
+            "temperature" => 0.7,
+            "repetition_penalty" => 1.1,
+            "max_new_tokens" => 100
+        ]
+    ];
+
+    $options = [
+        'http' => [
+            'header'  => "Content-type: application/json\r\n".
+			"Authorization: Bearer ".$this->apiKey."\r\n",
+            'method'  => 'POST',
+            'content' => json_encode($data)
+        ]
+    ];
+    $context  = stream_context_create($options);
+    $response = file_get_contents($url, false, $context);
+
+    // Parse response
+    $responseData = json_decode($response, true);
+var_dump($responseData);
+    $modelResponse = $responseData[0]["generated_text"];
+
+    // Add model response to history
+    $history[] = ["role" => "assistant", "content" => $modelResponse];
+
+echo $modelResponse;
+exit;
+
+    return $modelResponse;
+}
 
 	/*
 	* Function: agentChat($input)
