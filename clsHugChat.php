@@ -571,7 +571,7 @@ using _PAGE_ as a placeholder
                 $this->pubRole = 'cli';
                 $this->chatHistory = '';
             }
-            $answer = $this->apiCompletion(Straico::BASEROLE, $input);
+            $answer = $this->apiCompletion(HugChat::BASEROLE, $input);
         }
 
         return $answer;
