@@ -613,7 +613,6 @@ function chatWithHuggingFace($sysRole,$userInput) {
 
     // Parse response
     $responseData = json_decode($response, true);
-var_dump($responseData);
     $modelResponse = $responseData[0]["generated_text"];
 
     // Add model response to history
@@ -749,7 +748,7 @@ exit;
 	* Remarks:
 	* 
 	*/
-   private function getWebpage($url) {
+	private function getWebpage($url) {
 
 		$options = [
 			'http' => [
