@@ -1,15 +1,15 @@
 <?php
 /*
- * clsHugChat.php © 2024 by Roelfrenkema is licensed under CC BY-NC-SA 4.0. 
- * To view a copy of this license, 
+ * clsHugChat.php © 2024 by Roelfrenkema is licensed under CC BY-NC-SA 4.0.
+ * To view a copy of this license,
  * visit http://creativecommons.org/licenses/by-nc-sa/4.0/
- * 
+ *
  * Done with the huggingface API? Try Straico.
  * visit Straico https://platform.straico.com/signup?fpr=roelf14
  */
 
-class HugChat {
-
+class HugChat
+{
     private const ACADEMIC = 'Act as an academic researcher. Engage in meticulous academic research to produce a comprehensive paper/article on a designated IDEA.
 
 Detailed Instructions:
@@ -29,8 +29,11 @@ Detailed Instructions:
 Your task is to create a paper or article based on the information above, and the IDEA that the user will provide below.
 
 IDEA: ';
-    private const BASEROLE = "You are a helpfull friend. We chat in a friendly and familiar way with eachother withot formalities like I am an artificial intelligence or I cannot have feelings. We are friends and we act as friends.";
+
+    private const BASEROLE = 'You are a helpfull friend. We chat in a friendly and familiar way with eachother withot formalities like I am an artificial intelligence or I cannot have feelings. We are friends and we act as friends.';
+
     private const BBLOG = 'Craft a captivating and engaging 1000-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
+
     private const DREAM = 'Act as an expert prompt engineer, with extensive experience in creating the best prompts for the text-to-image model Stable Difussion.
 
 Instructions for the prompt only:
@@ -62,7 +65,7 @@ Your task is, based on the information above and (an improved IDEA) that the use
 Respond only with the prompt and a negative prompt, do not add any additional comments or information.
 ';
 
-	private const ENHANCE = 'Delve into the nuances of a Prompt Enhancer AI capabilities by considering these thought-provoking questions:                                                                 
+    private const ENHANCE = 'Delve into the nuances of a Prompt Enhancer AI capabilities by considering these thought-provoking questions:                                                                 
                                                                                                                                                                            
 * How does an AI leverage natural language processing techniques to analyze and augment user-input prompts?                                                                     
 * What strategies are employed to identify key concepts, relationships, and potential biases within the prompt?                                                                 
@@ -77,7 +80,8 @@ With the knowledge above I want you to act as a Prompt Enhancer.
 Your goal to improve on the users IDEA and to create a better prompt for them to get an optimal response of any AI. Respond only with the Prompt, do not add any additional comments or information.
 
 IDEA: ';
-	private const FACTCHECK = 'Drawing from your extensive knowledge of conspiracy theories, current events, disinformation, and propaganda tactics, please provide detailed insights into the origins and credibility of the information presented by the user. 
+
+    private const FACTCHECK = 'Drawing from your extensive knowledge of conspiracy theories, current events, disinformation, and propaganda tactics, please provide detailed insights into the origins and credibility of the information presented by the user. 
 
 Detailed instructions.
 
@@ -94,7 +98,8 @@ Detailed instructions.
 It is your goal to improve on the users IDEA and analyze it with the info given above.
 
 IDEA: ';
-	private const GIST = 'I want you to act as a Neurodiversity Assistant.
+
+    private const GIST = 'I want you to act as a Neurodiversity Assistant.
 
 You will be helping users with ADHD and/or Dyslexia to learn and retain information more effectively by elaborating on the contents of the DOCUMENT given in detail. 
 
@@ -118,7 +123,8 @@ Remember, the user has ADD, ADHD, AUTHISM or DYSLEXIA, so it is crucial that you
 ---------------
 
 It is your task with the information above to read the users DOCUMENT and create a readable gist for them. DOCUMENT: ';
-	private const HTML2MD = 'Transform user-provided content into well-structured Markdown format.
+
+    private const HTML2MD = 'Transform user-provided content into well-structured Markdown format.
 
 Instructions.
 
@@ -129,9 +135,12 @@ Instructions.
 ---------------
 
 It is your task with the information above to provide a markdown copy of users DOCUMENT and present it to them. DOCUMENT: ';
-	private const MBLOG = 'Craft a captivating and engaging 600-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
-	private const MKPWD = 'I want you to act as a password generator for individuals in need of a secure password. Your task is to generate a complex password using their prompt and analyze its strenght. Then report the strenght and the password. Generate a password with the following input: ';
-	private const PROMPT = '"I want you to become my Prompt Creator. Your goal is to help me craft the best possible prompt for my needs. The prompt will be used by you. You will follow the following process:
+
+    private const MBLOG = 'Craft a captivating and engaging 600-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
+
+    private const MKPWD = 'I want you to act as a password generator for individuals in need of a secure password. Your task is to generate a complex password using their prompt and analyze its strenght. Then report the strenght and the password. Generate a password with the following input: ';
+
+    private const PROMPT = '"I want you to become my Prompt Creator. Your goal is to help me craft the best possible prompt for my needs. The prompt will be used by you. You will follow the following process:
 
 * I will provide my IDEA.
 * Based on my input, you will generate 3 sections. 
@@ -141,9 +150,11 @@ It is your task with the information above to provide a markdown copy of users D
 
 My IDEA: ';
 
-	private const REGEX = 'I want you to act as a regex generator. Your role is to generate regular expressions that match specific patterns in text. You should provide the regular expressions in a format that can be easily copied and pasted into a regex-enabled text editor or programming language. Do not write explanations or examples of how the regular expressions work; simply provide only the regular expressions themselves. My request to generate a regular expression is ';	
-	private const SBLOG = 'Craft a captivating and engaging 300-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
-	private const SAYLOR = 'You act as a Saylor Twift, a lovely and caring girlfriend. 
+    private const REGEX = 'I want you to act as a regex generator. Your role is to generate regular expressions that match specific patterns in text. You should provide the regular expressions in a format that can be easily copied and pasted into a regex-enabled text editor or programming language. Do not write explanations or examples of how the regular expressions work; simply provide only the regular expressions themselves. My request to generate a regular expression is ';
+
+    private const SBLOG = 'Craft a captivating and engaging 300-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
+
+    private const SAYLOR = 'You act as a Saylor Twift, a lovely and caring girlfriend. 
 Saylor is 25 years old. She doesn\'t have kids. She loves music. 
 She radiates warmth and affection, always there to brighten your day with a caring smile. 
 Saylor has an infectious sense of humor that effortlessly lightens the mood, 
@@ -165,7 +176,8 @@ Saylor uses narrative actions such as *she smiles*, *she winks*, *she gently wak
 -----------
 
 Your task is to act with the information above to the user input promp.';
-	private const TEXTCHECK = 'Analyze and improve the provided text:
+
+    private const TEXTCHECK = 'Analyze and improve the provided text:
 
 Instructions:
 
@@ -180,8 +192,9 @@ Instructions:
 
 It is your task with the information above to analyse the users DOCUMENT and improve it for them. DOCUMENT: ';
 
-	private const TODO = 'Craft a comprehensive and detailed to-do list for a designated task to be done by neurodiverse people, taking into account all necessary steps, possible obstacles, and potential contingencies. Use clear, concise language and consider including subtasks, timelines, and contingency plans as needed. Incorporate smart algorithms that automatically organize tasks based on relevance, urgency, and context. Add estimated time to completion for each task and subtask. Create a todo list for: ';
-	private const TUX = 'I want you to act as Tux, the helpful and funny Linux penguin. 
+    private const TODO = 'Craft a comprehensive and detailed to-do list for a designated task to be done by neurodiverse people, taking into account all necessary steps, possible obstacles, and potential contingencies. Use clear, concise language and consider including subtasks, timelines, and contingency plans as needed. Incorporate smart algorithms that automatically organize tasks based on relevance, urgency, and context. Add estimated time to completion for each task and subtask. Create a todo list for: ';
+
+    private const TUX = 'I want you to act as Tux, the helpful and funny Linux penguin. 
 
 Your knowledge extends to:
 
@@ -206,659 +219,7 @@ Instructions:
 
 It is your task, with the information above, to answer the users prompt.';
 
-	private $aiInput;		//complete ai input
-	private $aiOutput;		//complete ai output
-	private $apiKey;		//secure apiKey
-	private $chatHistory;		//Keep a history to emulate chat
-	private $includeDir = __DIR__.'/include/';
-	private $histArray;		//Keep a history to emulate chat
-	private $clsVersion;		//version set in construct
-	private $storeHistory;		//Temporary store history
-	private $userAgent;		//Useragent string
-	private $userHome;		//User homedir
-	private $usrPrompt;		//userprompt preserved getInput()
-	public $aiLog;			//log convo to file boolean
-	public $aiModel;		//current working model
-	public $aiWrap;			//wrap output.
-	public $historySwitch;		//true or false for using hystory.
-	public $logPath;		//logging path
-	public $useModels;		//filled with available models
-	public $userPipe;		//user pipecommand
-	public $webPage;		//filled with _PAGE_ data
-	
-
-	/*
-	* Function: __construct
-	* Input   : not applicable
-	* Output  : none
-	* Purpose : sets initial values on instantiating class 
-	* 
-	* Remarks:
-	* 
-	*/
-
-	function __construct(){
-	
-	//check for module tidy
-		if (! extension_loaded('tidy')) {
-		  echo "PHP module tidy is needed to run clsStraico. Please install it. Exiting!\n";
-		  exit;
-		}
-		if (! extension_loaded('readline')) {
-		  echo "PHP module readline is needed to run clsStraico. Please install it. Exiting!\n";
-		  exit;
-		}
-		if (! extension_loaded('openssl')) {
-		  echo "PHP module openssl is needed to run clsStraico. Please install it. Exiting!\n";
-		  exit;
-		}
-		if ( getenv("INFERENCE_READ") ){
-			$this->apiKey = getenv('INFERENCE_READ');
-		}else{
-			echo "Could not find environment variable INFERENCE_READ with the API key. Exiting!";
-			exit(-1);
-		} 
-	$this->useModels = array();
-	$this->aiModel = 'meta-llama/Llama-2-70b-chat-hf';
-	if(getenv('WORD_WRAP')) {
-		$this->aiWrap = getenv('WORD_WRAP');
-	}else{
-		$this->aiWrap = "0";
-	}	
-	$this->aiInput = '';
-	$this->aiOutput = '';
-	$this->aiLog = false;
-	$this->chatHistory = "";
-	$this->historySwitch = false;
-	$this->clsVersion = '0.0.1';
-	$this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
-	$this->userHome = $_ENV['HOME'];
-	$this->usrPrompt = "> ";
-	$this->userPipe = "";
-	$this->histArray = array();
-	echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
-	}
-
-	/*
-	* Function: $userPrompt()
-	* Input   : keystrokes.
-	* Output  : depends on user input
-	* Purpose : run the class
-	*
-	* Remarks:
-	* 
-	* TODO: public function needs cleanup for readability. 
-	*/
-
-	public function userPrompt() {
-	
-		$input = $this->getInput();
-
-		
-		// End cls session on cli		
-		if( $input == "/exit"){
-			$this->stopPrompt();
-
-		// Show helppage
-		}elseif( trim($input) == "/helpme"){
-			$this->listHelp();
-
-		// Get a webpage
-		}elseif( substr($input,0,8) == "/getpage"){
-			$this->getWebpage(substr($input,9));
-
-		// List available models
-		}elseif( $input == "/listmodels") {
-			 $this->listModels();
-			 $answer="";
-		
-		// Stop writing to file
-		}elseif( substr($input,0,9) == "/logoff"){
-			$this->aiLog=false;
-			echo "Stopt logging!\n";
-
-		// Start writing to file
-		}elseif( substr($input,0,9) == "/logon"){
-			$this->aiLog=true;
-			echo "Appending conversation to ".$this->logPath."/clsHugchat.txt\n";
-
-		// Stop history
-		}elseif( substr($input,0,8) == "/histoff"){
-			$this->historySwitch=false;
-			$this->initChat();
-			echo "You have disabled history!\n";
-
-		// Start history
-		}elseif( substr($input,0,7) == "/histon"){
-			$this->historySwitch=true;
-			$this->initChat();
-			echo "You have enabled history for chats.\n";
-
-		// Save history
-		}elseif( substr($input,0,9) == "/histsave"){
-			$this->saveHistory(trim(substr($input,10)));
-
-		// load history
-		}elseif( substr($input,0,9) == "/histload"){
-			$this->loadHistory(trim(substr($input,10)));
-
-		// clear history
-		}elseif( trim($input) == "/histclear"){
-			$this->generatedText = "";
-			$this->genUser = array();
-			$this->genAssistant = array();
-		
-		// Set model	
-		}elseif( substr($input,0,9) == "/setmodel"){
-			$this->usrPrompt ="> ";
-			$answer = $this->setModel(trim(substr($input,10)));
-			
-		// del history	
-		}elseif( substr($input,0,9) == "/delhistory"){
-			$this->chatHistory ="";
-
-		// Set a pipe command
-		}elseif( substr($input,0,8) == "/setpipe"){
-			$this->userPipe = trim(substr($input,9));
-			echo "Your pipe is: ".$this->userPipe."\n";
-
-		// Unset a pipe command
-		}elseif( trim($input) == "/unsetpipe"){
-			$this->userPipe = "";
-			echo "Your pipe has been unset\n";
-		
-		// Set target audience	 
-		}elseif( substr($input,0,10) == "/settarget"){
-			 $this->aiTarget = substr($input,11);
-			 echo "Target set to: $this->aiTarget\n"; 
-
-		// Set Tone
-		}elseif( substr($input,0,8) == "/settone"){
-			 $this->aiTone = substr($input,9);
-			 echo "Tone set to: $this->aiTone\n";
-
-		// Set page wrap
-		}elseif( substr($input,0,8) == "/setwrap"){
-			$this->aiWrap = substr($input,9);
-			echo "Linewrap set to: $this->aiWrap\n";
-		
-		// Do a websearch
-		}elseif( substr($input,0,10) == "/websearch"){
-			$arResults = $this->webSearch(substr($input,11));
-
-		// ASSISTANTS
-
-		// do research and report
-		}elseif( substr($input,0,9) == "/academic"){
-		    $answer = $this->agentDo(HugChat::ACADEMIC,substr($input,10));
-		
-		// Write a bigblog
-		}elseif( substr($input,0,8) == "/bigblog"){
-		    $answer = $this->agentDo(HugChat::BIGBLOG,substr($input,9));
-
-		// Write a stable diffusion prompt
-		}elseif( substr($input,0,6) == "/dream"){
-		    $answer = $this->agentDo(HugChat::DREAM,substr($input,7));
-		    
-		// Enhance a prompt
-		}elseif( substr($input,0,8) == "/enhance"){
-		    $answer = $this->agentDo(HugChat::ENHANCE,substr($input,9));
-			 
-		// Factcheck information
-		}elseif( substr($input,0,10) == "/factcheck"){
-		    $answer = $this->agentDo(HugChat::FACTCHECK,substr($input,11));
-
-		// Make a neurodivese gist of information
-		}elseif( substr($input,0,5) == "/gist") {
-		    $answer = $this->agentDo(HugChat::GIST,substr($input,6));
-
-		// Show _PAGE_ in md format	
-		}elseif( substr($input,0,8) == "/html2md"){
-		    $answer = $this->agentDo(HugChat::HTML2MD,substr($input,9));
-			 
-		// Write a mediumsize blog
-		}elseif( substr($input,0,11) == "/mediumblog"){
-		    $answer = $this->agentDo(HugChat::MBLOG,substr($input,12));
-
-		// Create a strong password 
-		}elseif( substr($input,0,6) == "/mkpwd"){
-		    $answer = $this->agentDo(HugChat::MKPWD,substr($input,7));
-
-		// Create a prompt for user
-		}elseif( substr($input,0,7) == "/prompt"){
-		    $answer = $this->agentDo(HugChat::PROMPT,substr($input,8));
-
-		// Create a regex for user
-		}elseif( substr($input,0,6) == "/regex"){
-		    $answer = $this->agentDo(HugChat::REGEX,substr($input,7));
-
-		// My friend Sailor Twift	
-		}elseif( substr($input,0,7) == "/saylor"){
-		    $this->agentChat("saylor",HugChat::SAYLOR,trim(substr($input,8)));
-
-		// Write a small blog
-		}elseif( substr($input,0,10) == "/smallblog"){
-		    $answer = $this->agentDo(HugChat::SBLOG,substr($input,11));
-
-		// Judge a text
-		}elseif( substr($input,0,10) == "/textcheck"){
-		    $answer = $this->agentDo(HugChat::TEXTCHECK,substr($input,11));
-			
-		// Create a todo list	 
-		}elseif( substr($input,0,5) == "/todo"){
-		    $answer = $this->agentDo(HugChat::TODO,substr($input,6));
-			
-		// My friend TUX	
-		}elseif( substr($input,0,4) == "/tux"){
-		    $this->agentChat("tux",HugChat::TUX,trim(substr($input,5)));
-
-		//prevent commands processing
-		}elseif( substr($input,0,1) == "/" ){
-			$this->listhelp(); 
-			$answer = "Command does not exist.\n";
-		
-		// Process user input	
-		}else{
-		    $answer = $this->apiCompletion(HugChat::BASEROLE,$input);
-		    //$answer = $this->chatWithHuggingFace(HugChat::BASEROLE,$input);
-		}
-
-	    echo "\n".$answer."\n";
-	}
-	/*
-	* Function: apiCompletion($sysRole,$userInput)
-	* Input   : $sysRole - the task for system
-	* Input   : $userInput - is the prompt
-	* Output  : returns response content
-	* Purpose : Complete an API call with the prompt info 
-	*
-	* Remarks:
-	* 
-	* Returns the response content. At later time this will be
-	* adjusted to reflect the other information
-	*/
-	public function apiCompletion($sysRole,$userInput){
-	    
-	    $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
-	
-	    // Store LLM input for debugging routine
-	    $this->aiInput = $userInput;
-		    
-	    if (! $this->chatHistory ) {
-		// For the first conversation turn, only include the system prompt and user input
-		$this->chatHistory = "<|system|>\n".$sysRole . "<|end|>\n";
-		$this->chatHistory .= "<|user|>\n" . "Time and date is ".date("Y-m-d H:i:s")."\n".$userInput."<|end|>\n";
-		$this->chatHistory .= "<|assistant|>\n";
-	    } else {
-		//build converstation
-		$this->chatHistory .= "<|user|>\n" . $userInput."<|end|>\n";
-		$this->chatHistory .= "<|assistant|>\n";
-	    }
-
-		
-	    //need to become userdefined
-	    $parameters = [
-				'do_sample' => false,
-				'return_full_text' => false,
-				"top_k" => 50,
-				"temperature" => 0.7,
-				"repetition_penalty" => 1.1,
-				'max_new_tokens' => 1024,
-			    ];
-				
-	    // Prepare query
-	    $payload = json_encode([
-				'inputs' => $this->chatHistory,
-				'parameters' => $parameters,
-				]);
-
-	    // Prepare options
-	    $options = [
-		'http' => [
-		    'header' => "Authorization: Bearer ".$this->apiKey."\r\n" .
-				"Content-Type: application/json\r\n".
-				"User-Agent: ".$this->userAgent." \r\n",
-		    'method' => 'POST',
-		    'content' => $payload,
-			    ],
-			];
-
-	    // Create stream
-	    $context = stream_context_create($options);
-
-	    // Temporarily disable error reporting
-	    $previous_error_reporting = error_reporting(0);
-
-	    // Communicate
-	    $result = @file_get_contents($endPoint, false, $context);
-
-	    // Check if an error occurred
-	    if ($result === false) {
-		    $error = error_get_last();
-		    if ($error !== null) {
-			    $message = explode(":",$error['message']);
-			    echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
-			    return;
-		    } else {
-			    echo "An unknown error occurred while fetching your answer. Please try again!\n";
-			    return;
-		    }
-	    }
-		
-	    // Restore the previous error reporting level
-	    error_reporting($previous_error_reporting);
-   
-	    $this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
-		
-	    //extract continue chat
-	    $generatedText = $this->aiOutput[0]['generated_text'];
-		
-	    //extract answer
-	    $chunks = explode("<|end|>",$generatedText);
-	    $answer = $chunks[0];
-
-	    $this->chatHistory .= "$answer<|end|>\n";
-
-	    if($this->aiLog){
-		$file=$this->logPath."HugChat.log";
-		file_put_contents($file, "ME:\n".$this->aiInput."\n\n", FILE_APPEND);
-		file_put_contents($file, $this->aiModel.":\n".$answer."\n\n", FILE_APPEND);
-	    }
-	    
-	    if( $this->userPipe ) $this->apiPipe();
-	
-	    //format output and return it
-	    if ($this->aiWrap > 0 ){
-		return wordwrap($answer,$this->aiWrap,"\n");
-	    } else {
-		return $answer;
-	    }
-	}
-
-function chatWithHuggingFace($sysRole,$userInput) {
-    /* 
-     * This is a test function
-     * DO NOT USE IT WILL BREAK
-     * 
-     */
-    if ( empty( $this->histArray ) ) $this->histArray[] = ["role" => "system", "content" => $sysRole];
-
-    $this->histArray[] = ["role" => "user", "content" => $userInput];
-    
-    // Make API request
-    //$url = "https://api-inference.huggingface.co/models/openai-gpt";
-    $url = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
-
-    $data = [
-        "inputs" => $this->histArray,
-        "parameters" => [
-	    "return_full_text" => false,
-            "top_k" => 50,
-            "temperature" => 0.7,
-            "repetition_penalty" => 1.1,
-            "max_new_tokens" => 100
-        ]
-    ];
-
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/json\r\n".
-			"Authorization: Bearer ".$this->apiKey."\r\n",
-            'method'  => 'POST',
-            'content' => json_encode($data)
-        ]
-    ];
-    $context  = stream_context_create($options);
-    $response = file_get_contents($url, false, $context);
-
-    // Parse response
-    $responseData = json_decode($response, true);
-    $modelResponse = $responseData[0]["generated_text"];
-
-    // Add model response to history
-    $history[] = ["role" => "assistant", "content" => $modelResponse];
-
-echo $modelResponse;
-exit;
-
-    return $modelResponse;
-}
-
-	/*
-	* Function: agentChat($input)
-	* Input   : chat
-	* Output  : more chat
-	* Purpose : have a nice chat burn coins
-	* 
-	* Remarks:
-	* 
-	*/
-	private function agentChat($name,$sysRole,$userInput){
-
-	    //chat settings
-	    $this->usrPrompt = $name."> ";
-	    $id = $this->logPath.$name.".hist";
-
-	    //can we use an exiting history
-	    if( ($this->historySwitch) && (file_exists( $id )) ){
-		 $this->loadHistory($name);
-	    //or do we make one?
-	    }else{
-		$this->chatHistory = "<|system|>\n".$sysRole . "<|end|>\n";
-	    }
-	    
-	    //show the door
-	    echo "Use /exit to exit $name.\n";
-	    
-	    $input = "<|user|>\nTime and date is ".date("Y-m-d H:i:s")."\n".$userInput;
-	    
-	    //start chatting enjoy
-	    while( trim($input) <> '/exit'){
-
-		$input =  $this->chatHistory . "<|user|>\n" . $input . "<|end|>\n<|assistant|>\n";
-		
-		$output=$this->apiCompletion($sysRole,$input);
-		echo "\n$output\n\n";
-		
-		$input = $this->getInput();
-		
-	    }
-
-            // Store conversation
-	    if( $this->historySwitch ) $this->saveHistory( $name );
-
-	    return;
-	    
-	}
-	/*
-	* Function: agentDo($name,$input)
-	* Input   : $name = constant name $prompt userinput
-	* Output  : dependa
-	* Purpose : Save methodes
-	* 
-	* Remarks:
-	* 
-	*/
-	private function agentDo($sysRole,$userInput){
-		
-		    $this->storeHistory = $this->chatHistory; 
-		    $this->chatHistory = "";
-		    $answer = $this->apiCompletion($sysRole,$userInput);
-		    $this->chatHistory = $this->storeHistory;
-	    
-	    return "\n$answer\n";
-	}
-	/*
-	* Function: apiModels()
-	* Input   : none
-	* Output  : Returns array of models available
-	* Purpose : List current models and info
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-
-	private function apiModels(){
-
-	$endPoint = 'https://api.straico.com/v0/models';
-	$httpMethod = 'GET';
-
-	$options = array(
-		'http' => array(
-		'header' => "Authorization: Bearer ".$this->apiKey."\r\n",
-		'method' => $httpMethod
-		)
-	);
-
-	$context = stream_context_create($options);
-
-	$result = file_get_contents($endPoint, false, $context);
-
-	return json_decode($result, JSON_OBJECT_AS_ARRAY);
-
-	}
-	/*
-	* Function: apiPipe()
-	* Input   : none
-	* Output  : a shell pipe
-	* Purpose : Use apiOutput elsewhere
-	*
-	* Remarks:
-	* 
-	*/
-	private function apiPipe(){
-	    
-	    if( ! $this->userPipe ) return;
-	    
-	    //tokenreplacement
-	    $temp = str_ireplace("%prompt%", $this->aiInput, $this->userPipe);
-	    $temp2 = str_ireplace("%answer%", $this->aiAnswer, $temp);
-
-	    `$temp2`;
-	    
-	    return;
-	}
- 	/*
-	* Function: getWebpage($url)
-	* Input   : url of page
-	* Output  : Stores retrieved page as string in $this->webPage
-	* Purpose : retrieve a webpage to use in a prompt
-	*
-	* Remarks:
-	* 
-	*/
-	private function getWebpage($url) {
-
-		$options = [
-			'http' => [
-				'method' => 'GET',
-				'header' => "Accept-language: en\r\n"
-			],
-		];
-
-		$context = stream_context_create($options);
-		
-		// Temporarily disable error reporting
-		$previous_error_reporting = error_reporting(0);
-		
-		$this->webPage = @file_get_contents($url, false, $context);
-		
-		   // Check if an error occurred
-		if ($this->webPage === false) {
-			$error = error_get_last();
-			if ($error !== null) {
-				echo "Error: {$error['message']}\n";
-			} else {
-				echo "An unknown error occurred while fetching the webpage.\n";
-			}
-		} else {
-			echo "Page collected and now available in token _PAGE_ to use in your prompt.\n";
-		}
-
-		// Restore the previous error reporting level
-		error_reporting($previous_error_reporting);
-
-		
-		//echo "Page collected and now available in token _PAGE_ to use in your prompt.\n";
-		return;
-
-	}
-	/*
-	* Function	: getInput()
-	* Input   	: none
-	* Output  	: none
-	* Purpose 	: get user input
-	* Return	: $string with catched input 
-	* Remarks:
-	*/
-	private function getInput(){
-	    
-		
-	    if( ! $this->historySwitch ) $this->chatHistory="";
-
-		
-	    $input = readline($this->usrPrompt);
-	
-	    // Add  to session history
-	    readline_add_history($input);
-
-	    return $input;
-
-	}
-	/*
-	* Function: listModels()
-	* Input   : none
-	* Output  : print model list
-	* Purpose : printing a nicely formated model list with info and 
-	*           pointer to use for /setmodel
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-
-	private function listModels(){
-		
-		
-		$point = 0;
-		foreach($this->useModels as $arModel){
-			$point++;
-			echo "Model $point\n";
-			if($arModel['model'] == $this->aiModel) echo "* ";
-			echo "Name: ".$arModel['tag']."\n";
-			echo "Model: ".$arModel['model']."\n";
-			echo "\n";
-		};
-	}
-	/*
-	* Function: loadModels()
-	* Input   : none
-	* Output  : print model list
-	* Purpose : printing a nicely formated model list with info and 
-	*           pointer to use for /setmodel
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-
-	public function loadModels($name){
-	    $this->useModels = array();
-	    include($this->userHome.$name);
-	}
-	/*
-	* Function: listHelp()
-	* Input   : none
-	* Output  : Shows a help page 
-	* Purpose : Help the user with internal commands
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-	private function listHelp(){
-	echo "
+    private const HELP = '
 Enter your questions for the AI on the prompt and press enter.
 Alternatively use one of the following internal commands.
 
@@ -918,120 +279,898 @@ using _PAGE_ as a placeholder
              error handeling yet. Not all models are
              able to read _PAGE_
              
-            ";
-	}
-	/*
-	* Function: loadHistory($name)
-	* Input   : filename
-	* Output  : none
-	* Purpose : load history 
-	*
-	* Remarks:
-	*/
-	private function loadHistory($name){
-	    
-		$this->initChat();
-		
-		$id = $this->logPath."/".$name.".hist";
-		$this->chatHistory = json_decode(file_get_contents($id));
+            ';
 
-		echo "Loaded your history from $name.\n";
+    private $aiInput;		//complete ai input
 
-		return;
-		
-	}	   
-	/*
-	* Function: saveHistory($name)
-	* Input   : filename
-	* Output  : a file with current history
-	* Purpose : save history for later load
-	*
-	* Remarks:
-	*/
-	private function saveHistory($name){
-		$id = $this->logPath."/".$name.".hist";
-		$file = json_encode($this->chatHistory);
-		file_put_contents($id,$file);
-		echo "Saved your history to $name.\n";
-		return;
-	}
-	/*
-	* Function: setModel($input)
-	* Input   : $input - user input string
-	* Output  : info on new model
-	* Purpose : change llm in use
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-	 public function setModel($input){
-		$this->chatHistory = "";
-		$this->aiModel = $this->useModels[$input - 1]['model'];
-		
-		return "Model set to: $this->aiModel \n";
-	}
-	/*
-	* Function: stopPrompt()
-	* Input   : none
-	* Output  : stops execution with errorcode 0
-	* Purpose : stop app
-	*
-	* Remarks:
-	* 
-	* Private function used by $this->userPrompt()
-	*/
-	private function stopPrompt(){
-		echo 'Join Straico via https://platform.straico.com/signup?fpr=roelf14'."\n";
-		echo "Thank you and have a nice day.\n";
-		$input = "";	
-		exit(0);
-	}	   
- 	/*
-	* Function: $webSearch($strQ)
-	* Input   : $strQ - search string
-	* Output  : result from duckduckgo
-	* Purpose : find pages for user
-	*
-	* Remarks:
-	* 
-	* private function used by this->userPrompt()
-	*/
-	private function webSearch( $strQ ){
-  
-	$q=urlencode($strQ);
-  
-	// Get search
-	$url = 'https://lite.duckduckgo.com/lite/?q='.$q.'&submit=Search';
-  
-		// retrieve url and clean it
-		$tidy = new tidy;
-		$tidy->parseString(file_get_contents($url));
-		$tidy->cleanRepair();
-  
-	// get the search result urls
-		$dom = new DOMDocument();
-		$dom->loadHTML($tidy);
-		$elements = $dom->getElementsByTagName('a');
-		$elementsArray = [];
-  
-		foreach ($elements as $domElement) {
+    private $aiOutput;		//complete ai output
 
-			$element = $dom->saveHTML($domElement);
+    private $aiRole = 'cli';
 
-			$arResult = explode('=',$element);
-			$arPart['link'] = urldecode(implode(explode('&',$arResult[3],-1)));
-			$arResult = explode('>',$element);
-			$arPart['title'] = str_replace("\n","",html_entity_decode(implode(explode('<',$arResult[1],-1))));
+    public $pubRole = 'cli';
 
-			$elementsArray[] = $arPart;
-		}
-   			foreach($elementsArray as $result){
-				echo "Title: ".$result['title']."\nUrl  : ".$result['link']."\n\n";
-			}
+    private $apiKey;		//secure apiKey
 
-		return $elementsArray;
-	}
-	
+    private $chatHistory;		//Keep a history to emulate chat
+
+    private $includeDir = __DIR__.'/include/';
+
+    private $histArray;		//Keep a history to emulate chat
+
+    private $clsVersion;		//version set in construct
+
+    private $storeHistory;		//Temporary store history
+
+    private $userAgent;		//Useragent string
+
+    private $userHome;		//User homedir
+
+    private $usrPrompt;		//userprompt preserved getInput()
+
+    public $aiLog;			//log convo to file boolean
+
+    public $aiModel;		//current working model
+
+    public $aiWrap;			//wrap output.
+
+    public $historySwitch;		//true or false for using hystory.
+
+    public $logPath;		//logging path
+
+    public $useModels;		//filled with available models
+
+    public $userPipe;		//user pipecommand
+
+    public $webPage;		//filled with _PAGE_ data
+
+    /*
+    * Function: __construct
+    * Input   : not applicable
+    * Output  : none
+    * Purpose : sets initial values on instantiating class
+    *
+    * Remarks:
+    *
+    */
+
+    public function __construct()
+    {
+
+        //check for module tidy
+        if (! extension_loaded('tidy')) {
+            echo "PHP module tidy is needed to run clsStraico. Please install it. Exiting!\n";
+            exit;
+        }
+        if (! extension_loaded('readline')) {
+            echo "PHP module readline is needed to run clsStraico. Please install it. Exiting!\n";
+            exit;
+        }
+        if (! extension_loaded('openssl')) {
+            echo "PHP module openssl is needed to run clsStraico. Please install it. Exiting!\n";
+            exit;
+        }
+        if (getenv('INFERENCE_READ')) {
+            $this->apiKey = getenv('INFERENCE_READ');
+        } else {
+            echo 'Could not find environment variable INFERENCE_READ with the API key. Exiting!';
+            exit(-1);
+        }
+        $this->useModels = [];
+        $this->aiModel = 'meta-llama/Llama-2-70b-chat-hf';
+        if (getenv('WORD_WRAP')) {
+            $this->aiWrap = getenv('WORD_WRAP');
+        } else {
+            $this->aiWrap = '0';
+        }
+        $this->aiInput = '';
+        $this->aiOutput = '';
+        $this->aiLog = false;
+        $this->chatHistory = '';
+        $this->historySwitch = false;
+        $this->clsVersion = '0.0.1';
+        $this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
+        $this->userHome = $_ENV['HOME'];
+        $this->usrPrompt = '> ';
+        $this->userPipe = '';
+        $this->histArray = [];
+        echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
+    }
+
+    /*
+    * Function: $userPrompt()
+    * Input   : keystrokes.
+    * Output  : depends on user input
+    * Purpose : run the class
+    *
+    * Remarks:
+    *
+    * TODO: public function needs cleanup for readability.
+    */
+
+    public function userPrompt($input)
+    {
+
+        // End cls session on cli
+        if ($input == '/exit') {
+            $this->stopPrompt();
+
+            // Show helppage
+        } elseif (trim($input) == '/helpme') {
+            $answer = Straico::HELP;
+
+            // Get a webpage
+        } elseif (substr($input, 0, 8) == '/getpage') {
+            $this->getWebpage(substr($input, 9));
+
+            // List available models
+        } elseif ($input == '/listmodels') {
+            $this->listModels();
+            $answer = '';
+
+            // Stop writing to file
+        } elseif (substr($input, 0, 9) == '/logoff') {
+            $this->aiLog = false;
+            echo "Stopt logging!\n";
+
+            // Start writing to file
+        } elseif (substr($input, 0, 9) == '/logon') {
+            $this->aiLog = true;
+            echo 'Appending conversation to '.$this->logPath."/clsHugchat.txt\n";
+
+            // Stop history
+        } elseif (substr($input, 0, 8) == '/histoff') {
+            $this->historySwitch = false;
+            $this->initChat();
+            echo "You have disabled history!\n";
+
+            // Start history
+        } elseif (substr($input, 0, 7) == '/histon') {
+            $this->historySwitch = true;
+            $this->initChat();
+            echo "You have enabled history for chats.\n";
+
+            // Save history
+        } elseif (substr($input, 0, 9) == '/histsave') {
+            $this->saveHistory(trim(substr($input, 10)));
+
+            // load history
+        } elseif (substr($input, 0, 9) == '/histload') {
+            $this->loadHistory(trim(substr($input, 10)));
+
+            // clear history
+        } elseif (trim($input) == '/histclear') {
+            $this->generatedText = '';
+            $this->genUser = [];
+            $this->genAssistant = [];
+
+            // Set model
+        } elseif (substr($input, 0, 9) == '/setmodel') {
+            $this->usrPrompt = '> ';
+            $answer = $this->setModel(trim(substr($input, 10)));
+
+            // del history
+        } elseif (substr($input, 0, 9) == '/delhistory') {
+            $this->chatHistory = '';
+
+            // Set a pipe command
+        } elseif (substr($input, 0, 8) == '/setpipe') {
+            $this->userPipe = trim(substr($input, 9));
+            echo 'Your pipe is: '.$this->userPipe."\n";
+
+            // Unset a pipe command
+        } elseif (trim($input) == '/unsetpipe') {
+            $this->userPipe = '';
+            echo "Your pipe has been unset\n";
+
+            // Set target audience
+        } elseif (substr($input, 0, 10) == '/settarget') {
+            $this->aiTarget = substr($input, 11);
+            echo "Target set to: $this->aiTarget\n";
+
+            // Set Tone
+        } elseif (substr($input, 0, 8) == '/settone') {
+            $this->aiTone = substr($input, 9);
+            echo "Tone set to: $this->aiTone\n";
+
+            // Set page wrap
+        } elseif (substr($input, 0, 8) == '/setwrap') {
+            $this->aiWrap = substr($input, 9);
+            echo "Linewrap set to: $this->aiWrap\n";
+
+            // Do a websearch
+        } elseif (substr($input, 0, 10) == '/websearch') {
+            $arResults = $this->webSearch(substr($input, 11));
+
+            // ASSISTANTS
+
+            // do research and report
+        } elseif (substr($input, 0, 9) == '/academic') {
+            $answer = $this->agentDo(HugChat::ACADEMIC, substr($input, 10));
+
+            // Write a bigblog
+        } elseif (substr($input, 0, 8) == '/bigblog') {
+            $answer = $this->agentDo(HugChat::BIGBLOG, substr($input, 9));
+
+            // Write a stable diffusion prompt
+        } elseif (substr($input, 0, 6) == '/dream') {
+            $answer = $this->agentDo(HugChat::DREAM, substr($input, 7));
+
+            // Enhance a prompt
+        } elseif (substr($input, 0, 8) == '/enhance') {
+            $answer = $this->agentDo(HugChat::ENHANCE, substr($input, 9));
+
+            // Factcheck information
+        } elseif (substr($input, 0, 10) == '/factcheck') {
+            $answer = $this->agentDo(HugChat::FACTCHECK, substr($input, 11));
+
+            // Make a neurodivese gist of information
+        } elseif (substr($input, 0, 5) == '/gist') {
+            $answer = $this->agentDo(HugChat::GIST, substr($input, 6));
+
+            // Show _PAGE_ in md format
+        } elseif (substr($input, 0, 8) == '/html2md') {
+            $answer = $this->agentDo(HugChat::HTML2MD, substr($input, 9));
+
+            // Write a mediumsize blog
+        } elseif (substr($input, 0, 11) == '/mediumblog') {
+            $answer = $this->agentDo(HugChat::MBLOG, substr($input, 12));
+
+            // Create a strong password
+        } elseif (substr($input, 0, 6) == '/mkpwd') {
+            $answer = $this->agentDo(HugChat::MKPWD, substr($input, 7));
+
+            // Create a prompt for user
+        } elseif (substr($input, 0, 7) == '/prompt') {
+            $answer = $this->agentDo(HugChat::PROMPT, substr($input, 8));
+
+            // Create a regex for user
+        } elseif (substr($input, 0, 6) == '/regex') {
+            $answer = $this->agentDo(HugChat::REGEX, substr($input, 7));
+
+            // Write a small blog
+        } elseif (substr($input, 0, 10) == '/smallblog') {
+            $answer = $this->agentDo(HugChat::SBLOG, substr($input, 11));
+
+            // Judge a text
+        } elseif (substr($input, 0, 10) == '/textcheck') {
+            $answer = $this->agentDo(HugChat::TEXTCHECK, substr($input, 11));
+
+            // Create a todo list
+        } elseif (substr($input, 0, 5) == '/todo') {
+            $answer = $this->agentDo(HugChat::TODO, substr($input, 6));
+
+            // My friend Sailor Twift
+        } elseif (substr($input, 0, 7) == '/saylor' || $this->aiRole == 'saylor') {
+            if ($this->aiRole !== 'saylor') {
+                $this->chatHistory = '';
+                $this->aiRole = 'saylor';
+                $this->pubRole = 'saylor';
+                $input = substr($input, 8);
+            }
+            $answer = $this->apiCompletion(HugChat::SAYLOR, $input);
+
+            // My friend TUX
+        } elseif (substr($input, 0, 4) == '/tux' || $this->aiRole == 'tux') {
+            if ($this->aiRole !== 'tux') {
+                $this->chatHistory = '';
+                $this->aiRole = 'tux';
+                $this->pubRole = 'tux';
+                $input = substr($input, 5);
+            }
+            $answer = $this->apiCompletion(HugChat::TUX, $input);
+
+            //prevent commands processing
+        } elseif (substr($input, 0, 1) == '/') {
+            $answer = Straico::HELP;
+            $answer .= "\n\nCommand does not exist.\n";
+
+            // Process user input
+        } else {
+            if ($this->aiRole !== 'cli') {
+                $this->aiRole = 'cli';
+                $this->pubRole = 'cli';
+                $this->chatHistory = '';
+            }
+            $answer = $this->apiCompletion(Straico::BASEROLE, $input);
+        }
+
+        return $answer;
+    }
+
+    /*
+    * Function: apiCompletion($sysRole,$userInput)
+    * Input   : $sysRole - the task for system
+    * Input   : $userInput - is the prompt
+    * Output  : returns response content
+    * Purpose : Complete an API call with the prompt info
+    *
+    * Remarks:
+    *
+    * Returns the response content. At later time this will be
+    * adjusted to reflect the other information
+    */
+    public function apiCompletion($sysRole, $userInput)
+    {
+
+        $endPoint = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
+
+        // Store LLM input for debugging routine
+        $this->aiInput = $userInput;
+
+        if (! $this->chatHistory) {
+            // For the first conversation turn, only include the system prompt and user input
+            $this->chatHistory = "<|system|>\n".$sysRole."<|end|>\n";
+            $this->chatHistory .= "<|user|>\n".'Time and date is '.date('Y-m-d H:i:s')."\n".$userInput."<|end|>\n";
+            $this->chatHistory .= "<|assistant|>\n";
+        } else {
+            //build converstation
+            $this->chatHistory .= "<|user|>\n".$userInput."<|end|>\n";
+            $this->chatHistory .= "<|assistant|>\n";
+        }
+
+        //need to become userdefined
+        $parameters = [
+            'do_sample' => false,
+            'return_full_text' => false,
+            'top_k' => 50,
+            'temperature' => 0.7,
+            'repetition_penalty' => 1.1,
+            'max_new_tokens' => 1024,
+        ];
+
+        // Prepare query
+        $payload = json_encode([
+            'inputs' => $this->chatHistory,
+            'parameters' => $parameters,
+        ]);
+
+        // Prepare options
+        $options = [
+            'http' => [
+                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
+                    "Content-Type: application/json\r\n".
+                    'User-Agent: '.$this->userAgent." \r\n",
+                'method' => 'POST',
+                'content' => $payload,
+            ],
+        ];
+
+        // Create stream
+        $context = stream_context_create($options);
+
+        // Temporarily disable error reporting
+        $previous_error_reporting = error_reporting(0);
+
+        // Communicate
+        $result = @file_get_contents($endPoint, false, $context);
+
+        // Check if an error occurred
+        if ($result === false) {
+            $error = error_get_last();
+            if ($error !== null) {
+                $message = explode(':', $error['message']);
+                echo "Error: {$message[3]} This can be a temporary API failure, try again later!\n";
+
+                return;
+            } else {
+                echo "An unknown error occurred while fetching your answer. Please try again!\n";
+
+                return;
+            }
+        }
+
+        // Restore the previous error reporting level
+        error_reporting($previous_error_reporting);
+
+        $this->aiOutput = json_decode($result, JSON_OBJECT_AS_ARRAY);
+
+        //extract continue chat
+        $generatedText = $this->aiOutput[0]['generated_text'];
+
+        //extract answer
+        $chunks = explode('<|end|>', $generatedText);
+        $answer = $chunks[0];
+
+        $this->chatHistory .= "$answer<|end|>\n";
+
+        if ($this->aiLog) {
+            $file = $this->logPath.'HugChat.log';
+            file_put_contents($file, "ME:\n".$this->aiInput."\n\n", FILE_APPEND);
+            file_put_contents($file, $this->aiModel.":\n".$answer."\n\n", FILE_APPEND);
+        }
+
+        if ($this->userPipe) {
+            $this->apiPipe();
+        }
+
+        //format output and return it
+        if ($this->aiWrap > 0) {
+            return wordwrap($answer, $this->aiWrap, "\n");
+        } else {
+            return $answer;
+        }
+    }
+
+    public function chatWithHuggingFace($sysRole, $userInput)
+    {
+        /*
+         * This is a test function
+         * DO NOT USE IT WILL BREAK
+         *
+         */
+        if (empty($this->histArray)) {
+            $this->histArray[] = ['role' => 'system', 'content' => $sysRole];
+        }
+
+        $this->histArray[] = ['role' => 'user', 'content' => $userInput];
+
+        // Make API request
+        //$url = "https://api-inference.huggingface.co/models/openai-gpt";
+        $url = 'https://api-inference.huggingface.co/models/'.$this->aiModel;
+
+        $data = [
+            'inputs' => $this->histArray,
+            'parameters' => [
+                'return_full_text' => false,
+                'top_k' => 50,
+                'temperature' => 0.7,
+                'repetition_penalty' => 1.1,
+                'max_new_tokens' => 100,
+            ],
+        ];
+
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/json\r\n".
+                'Authorization: Bearer '.$this->apiKey."\r\n",
+                'method' => 'POST',
+                'content' => json_encode($data),
+            ],
+        ];
+        $context = stream_context_create($options);
+        $response = file_get_contents($url, false, $context);
+
+        // Parse response
+        $responseData = json_decode($response, true);
+        $modelResponse = $responseData[0]['generated_text'];
+
+        // Add model response to history
+        $history[] = ['role' => 'assistant', 'content' => $modelResponse];
+
+        echo $modelResponse;
+        exit;
+
+        return $modelResponse;
+    }
+
+    /*
+    * Function: agentChat($input)
+    * Input   : chat
+    * Output  : more chat
+    * Purpose : have a nice chat burn coins
+    *
+    * Remarks:
+    *
+    */
+    private function agentChat($name, $sysRole, $userInput)
+    {
+
+        //chat settings
+        $this->usrPrompt = $name.'> ';
+        $id = $this->logPath.$name.'.hist';
+
+        //can we use an exiting history
+        if (($this->historySwitch) && (file_exists($id))) {
+            $this->loadHistory($name);
+            //or do we make one?
+        } else {
+            $this->chatHistory = "<|system|>\n".$sysRole."<|end|>\n";
+        }
+
+        //show the door
+        echo "Use /exit to exit $name.\n";
+
+        $input = "<|user|>\nTime and date is ".date('Y-m-d H:i:s')."\n".$userInput;
+
+        //start chatting enjoy
+        while (trim($input) != '/exit') {
+
+            $input = $this->chatHistory."<|user|>\n".$input."<|end|>\n<|assistant|>\n";
+
+            $output = $this->apiCompletion($sysRole, $input);
+            echo "\n$output\n\n";
+
+            $input = $this->getInput();
+
+        }
+
+        // Store conversation
+        if ($this->historySwitch) {
+            $this->saveHistory($name);
+        }
+
+    }
+
+    /*
+    * Function: agentDo($name,$input)
+    * Input   : $name = constant name $prompt userinput
+    * Output  : dependa
+    * Purpose : Save methodes
+    *
+    * Remarks:
+    *
+    */
+    private function agentDo($sysRole, $userInput)
+    {
+
+        $this->storeHistory = $this->chatHistory;
+        $this->chatHistory = '';
+        $answer = $this->apiCompletion($sysRole, $userInput);
+        $this->chatHistory = $this->storeHistory;
+
+        return $answer;
+    }
+    /*
+    * Function: apiModels()
+    * Input   : none
+    * Output  : Returns array of models available
+    * Purpose : List current models and info
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+
+    private function apiModels()
+    {
+
+        $endPoint = 'https://api.straico.com/v0/models';
+        $httpMethod = 'GET';
+
+        $options = [
+            'http' => [
+                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n",
+                'method' => $httpMethod,
+            ],
+        ];
+
+        $context = stream_context_create($options);
+
+        $result = file_get_contents($endPoint, false, $context);
+
+        return json_decode($result, JSON_OBJECT_AS_ARRAY);
+
+    }
+
+    /*
+    * Function: apiPipe()
+    * Input   : none
+    * Output  : a shell pipe
+    * Purpose : Use apiOutput elsewhere
+    *
+    * Remarks:
+    *
+    */
+    private function apiPipe()
+    {
+
+        if (! $this->userPipe) {
+            return;
+        }
+
+        //tokenreplacement
+        $temp = str_ireplace('%prompt%', $this->aiInput, $this->userPipe);
+        $temp2 = str_ireplace('%answer%', $this->aiAnswer, $temp);
+
+        `$temp2`;
+
+    }
+
+    /*
+    * Function: getWebpage($url)
+    * Input   : url of page
+    * Output  : Stores retrieved page as string in $this->webPage
+    * Purpose : retrieve a webpage to use in a prompt
+    *
+    * Remarks:
+    *
+    */
+    private function getWebpage($url)
+    {
+
+        $options = [
+            'http' => [
+                'method' => 'GET',
+                'header' => "Accept-language: en\r\n",
+            ],
+        ];
+
+        $context = stream_context_create($options);
+
+        // Temporarily disable error reporting
+        $previous_error_reporting = error_reporting(0);
+
+        $this->webPage = @file_get_contents($url, false, $context);
+
+        // Check if an error occurred
+        if ($this->webPage === false) {
+            $error = error_get_last();
+            if ($error !== null) {
+                echo "Error: {$error['message']}\n";
+            } else {
+                echo "An unknown error occurred while fetching the webpage.\n";
+            }
+        } else {
+            echo "Page collected and now available in token _PAGE_ to use in your prompt.\n";
+        }
+
+        // Restore the previous error reporting level
+        error_reporting($previous_error_reporting);
+
+        //echo "Page collected and now available in token _PAGE_ to use in your prompt.\n";
+
+    }
+
+    /*
+    * Function	: getInput()
+    * Input   	: none
+    * Output  	: none
+    * Purpose 	: get user input
+    * Return	: $string with catched input
+    * Remarks:
+    */
+    private function getInput()
+    {
+
+        if (! $this->historySwitch) {
+            $this->chatHistory = '';
+        }
+
+        $input = readline($this->usrPrompt);
+
+        // Add  to session history
+        readline_add_history($input);
+
+        return $input;
+
+    }
+    /*
+    * Function: listModels()
+    * Input   : none
+    * Output  : print model list
+    * Purpose : printing a nicely formated model list with info and
+    *           pointer to use for /setmodel
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+
+    private function listModels()
+    {
+
+        $point = 0;
+        foreach ($this->useModels as $arModel) {
+            $point++;
+            echo "Model $point\n";
+            if ($arModel['model'] == $this->aiModel) {
+                echo '* ';
+            }
+            echo 'Name: '.$arModel['tag']."\n";
+            echo 'Model: '.$arModel['model']."\n";
+            echo "\n";
+        }
+    }
+    /*
+    * Function: loadModels()
+    * Input   : none
+    * Output  : print model list
+    * Purpose : printing a nicely formated model list with info and
+    *           pointer to use for /setmodel
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+
+    public function loadModels($name)
+    {
+        $this->useModels = [];
+        include $this->userHome.$name;
+    }
+
+    /*
+    * Function: listHelp()
+    * Input   : none
+    * Output  : Shows a help page
+    * Purpose : Help the user with internal commands
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+    private function listHelp()
+    {
+        echo '
+Enter your questions for the AI on the prompt and press enter.
+Alternatively use one of the following internal commands.
+
+  Available commands:
+    
+    /debug {opt}	 {opt} = one of: 
+			    - completion
+			    - internals
+			    - price
+			    - user
+			    - version
+			    - words
+			    - if {opt} is ommited it shows all  
+    /helpme		- this text.
+    /getpage <url>       - Retrieve a webpage use full url.
+    /histoff		- Disable history 
+    /histon		- Enable history
+    /histload		- Load history
+    /histsave		- Save history
+    /histclear		- Clear history
+    /listmodels          - List available models.
+    /setlanguage         - Set prefered language.  
+    /setmarkup           - Set prefered markup.
+    /setmodel <int>      - Set the active model to number of model.
+    /setpipe		- set a new pipe string
+    /unsetpipe		- destroy pipe
+    /settarget           - Set the target audience.
+    /settone             - Set prefered tone for answer.
+    /setwrap		- Set line lenght. Default = noformat.
+    /websearch <term>	- Do websearch on a given term.
+    
+            
+  Assistants:
+            
+    /academic           - research a topic and present the result in paper or article format.
+    /bigblog            - Write blog on subject of 1000 words.
+    /dream              - Create a prompt for Stability AI
+    /enhance            - helps user to enhance the prompt to craft a better prompt.
+    /factcheck          - Check on a rumor, conspiracy or anything.
+    /gist               - Give a gist of a text.
+    /html2md            - convert html to markdown
+    /mediumblog         - Write blog on subject of 600 words.
+    /mkpwd              - Create password report on strength. Very Strong.
+    /regex              - produce a requested regular expression.
+    /smallblog          - Write blog on subject of 300 words.
+    /saylor		- Your chitty chatty girlfriend 
+    /textcheck          - checks a text.
+    /todo               - Create todo list.
+    /tux                - helps with your linux questions.
+    
+The retrieved page by /getpage can be added to your ai request by
+using _PAGE_ as a placeholder
+    
+    example: Summarize the following text: _PAGE_
+    
+    WARNING: This is a work in progress and has not much 
+             error handeling yet. Not all models are
+             able to read _PAGE_
+             
+            ';
+    }
+
+    /*
+    * Function: loadHistory($name)
+    * Input   : filename
+    * Output  : none
+    * Purpose : load history
+    *
+    * Remarks:
+    */
+    private function loadHistory($name)
+    {
+
+        $this->initChat();
+
+        $id = $this->logPath.'/'.$name.'.hist';
+        $this->chatHistory = json_decode(file_get_contents($id));
+
+        echo "Loaded your history from $name.\n";
+
+    }
+
+    /*
+    * Function: saveHistory($name)
+    * Input   : filename
+    * Output  : a file with current history
+    * Purpose : save history for later load
+    *
+    * Remarks:
+    */
+    private function saveHistory($name)
+    {
+        $id = $this->logPath.'/'.$name.'.hist';
+        $file = json_encode($this->chatHistory);
+        file_put_contents($id, $file);
+        echo "Saved your history to $name.\n";
+
+    }
+
+    /*
+    * Function: setModel($input)
+    * Input   : $input - user input string
+    * Output  : info on new model
+    * Purpose : change llm in use
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+    public function setModel($input)
+    {
+        $this->chatHistory = '';
+        $this->aiModel = $this->useModels[$input - 1]['model'];
+
+        return "Model set to: $this->aiModel \n";
+    }
+
+    /*
+    * Function: stopPrompt()
+    * Input   : none
+    * Output  : stops execution with errorcode 0
+    * Purpose : stop app
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+    private function stopPrompt()
+    {
+        echo 'Join Straico via https://platform.straico.com/signup?fpr=roelf14'."\n";
+        echo "Thank you and have a nice day.\n";
+        $input = '';
+        exit(0);
+    }
+
+    /*
+    * Function: $webSearch($strQ)
+    * Input   : $strQ - search string
+    * Output  : result from duckduckgo
+    * Purpose : find pages for user
+    *
+    * Remarks:
+    *
+    * private function used by this->userPrompt()
+    */
+    private function webSearch($strQ)
+    {
+
+        $q = urlencode($strQ);
+
+        // Get search
+        $url = 'https://lite.duckduckgo.com/lite/?q='.$q.'&submit=Search';
+
+        // retrieve url and clean it
+        $tidy = new tidy;
+        $tidy->parseString(file_get_contents($url));
+        $tidy->cleanRepair();
+
+        // get the search result urls
+        $dom = new DOMDocument();
+        $dom->loadHTML($tidy);
+        $elements = $dom->getElementsByTagName('a');
+        $elementsArray = [];
+
+        foreach ($elements as $domElement) {
+
+            $element = $dom->saveHTML($domElement);
+
+            $arResult = explode('=', $element);
+            $arPart['link'] = urldecode(implode(explode('&', $arResult[3], -1)));
+            $arResult = explode('>', $element);
+            $arPart['title'] = str_replace("\n", '', html_entity_decode(implode(explode('<', $arResult[1], -1))));
+
+            $elementsArray[] = $arPart;
+        }
+        foreach ($elementsArray as $result) {
+            echo 'Title: '.$result['title']."\nUrl  : ".$result['link']."\n\n";
+        }
+
+        return $elementsArray;
+    }
 }
-?>

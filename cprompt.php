@@ -2,10 +2,10 @@
 
 <?php
 /*
- * clsHugginface.php © 2024 by Roelfrenkema is licensed under CC BY-NC-SA 4.0. 
- * To view a copy of this license, 
+ * clsHugginface.php © 2024 by Roelfrenkema is licensed under CC BY-NC-SA 4.0.
+ * To view a copy of this license,
  * visit http://creativecommons.org/licenses/by-nc-sa/4.0/
- * 
+ *
  */
 
 //Only for external classes pulled with composer
@@ -19,9 +19,9 @@ $home = $_ENV['HOME'];
 
 set_include_path($home.'/git/clsHuggingface');
 
-include('clsHugChat.php');
+include 'clsHugChat.php';
 
-$aiMessage = "";
+$aiMessage = '';
 $hug = new HugChat;
 
 /*
@@ -29,7 +29,7 @@ $hug = new HugChat;
  * f.i. the history files omitting the need to use a path in their names
  * logfiles will have extension log and history files will have the
  * extension hist.
- */ 
+ */
 $hug->logAll = false;
 $hug->logPath = '/home/';
 
@@ -37,10 +37,9 @@ $hug->logPath = '/home/';
 * pipe setting
 * placeholder %prompt% and %answer will be replaced by the prompt and AI answer.
 * then it will be executed in a shell.
-* 
+*
 * $hug->userPipe = 'echo "%prompt%" >> ~/myprompts.txt';
 */
-
 
 /*
  * The history switch is used to set chatformat on or off at start.
@@ -51,20 +50,22 @@ $hug->historySwitch = true;
 
 //getmodels
 $hug->loadModels('/git/clsHuggingface/chat_base.php');
-$hug->setModel = "meta-llama/Meta-Llama-3-70B-Instruct";
+$hug->setModel = 'meta-llama/Meta-Llama-3-70B-Instruct';
 
 /*
     Start looping till finished with /exit
 */
 
-while( $aiMessage !== "/exit" ){
+while ($aiMessage !== '/exit') {
 
-  //prompt
-  $aiMessage = $hug->userPrompt();
-  echo "\n";
-  
-  //No input available?
-  if ($aiMessage == "") continue;
-  
+    //prompt
+    $aiMessage = $hug->userPrompt();
+    echo "\n";
+
+    //No input available?
+    if ($aiMessage == '') {
+        continue;
+    }
+
 }
 ?>
