@@ -73,7 +73,7 @@ while( $aiMessage !== "/exit" ){
     //echo $aiMessage."\n\n";
     
     //lavarel answer
-    info($aiMessage);
-  
+    info('<fg=cyan>'.$aiMessage.'</>');
+
 }
 ?>

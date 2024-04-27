@@ -136,7 +136,7 @@ Add to current Negative Prompt
 
     public function userPrompt($input)
     {
-
+	$input = trim( $input ) ;
 
         // End cls session on cli
         if ($input == '/exit') {
