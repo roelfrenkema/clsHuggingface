@@ -508,12 +508,12 @@ var_dump($id);
 
     public function loadModels($tpath)
     {
-        if (! is_file($this->userHome.$tpath)) {
-            echo $this->userHome.$tpath." not found!\n";
+        if (! is_file($tpath)) {
+            echo $tpath." not found!\n";
         } else {
             $this->useModels = [];
-            include $this->userHome.$tpath;
-            return $this->userHome.$tpath." loaded!\n";
+            include $tpath;
+            return $tpath." loaded!\n";
         }
     }
 }
