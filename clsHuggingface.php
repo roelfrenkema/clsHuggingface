@@ -463,9 +463,6 @@ Add to current Negative Prompt
         $myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
         $myM .= ' -M"set Iptc.Application2.Subject '.$this->endPoint.'"';
 
-var_dump($myM);
-var_dump($id);
-
         $test = shell_exec("exiv2 $myM ".$id);
     }
     /*
