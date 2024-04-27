@@ -222,9 +222,6 @@ Add to current Negative Prompt
 
         $prompt = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
 
-        echo "\n\nEndpoint short name: ".$this->sName."\n";
-        //echo "Prompt : ".$input."\n";
-
         if ($this->logAll) {
             $this->logString('Main: Endpoint short name: '.$this->sName."\n");
         }
@@ -291,9 +288,9 @@ Add to current Negative Prompt
                 if ($error !== null) {
                     if (str_contains($error['message'], '503')) {
                         $timer += $this->slUpdate;
-                        echo "Model not loaded yet, trying again in $timer seconds\n";
+                        echo "Model ".$this->sname." not loaded yet, trying again in $timer seconds\n";
                         if ($this->logAll) {
-                            $this->logString("Main: Model not loaded yet, trying again in $timer seconds\n");
+                            $this->logString("Main: Model ".$this->sname." not loaded yet, trying again in $timer seconds\n");
                         }
                         $result = '';
 
@@ -336,9 +333,9 @@ Add to current Negative Prompt
 
         // Write the image.
 
-        $this->writeImage($result);
+        $answer = $this->writeImage($result);
 
-        return 0;
+        return $answer;
 
     }
 
@@ -420,17 +417,14 @@ Add to current Negative Prompt
                 if ($this->logAll) {
                     $this->logString("Loop: Model skipped due to server error, sorry.\n");
                 }
-            } elseif (! $response == '0') {
-                echo "\nModel skipped due to $response, sorry.\n";
-                if ($this->logAll) {
-                    $this->logString("Loop: Model skipped due to $response, sorry.\n");
-                }
             } elseif ($response == $this->slMax) {
                 echo "\nModel skipped due to sleeptimeout, sorry.\n";
                 if ($this->logAll) {
                     $this->logString("Loop: Model skipped due to sleeptimeout, sorry.\n");
                 }
-            }
+            } else {
+		echo "$response\n";
+	    }
 
         }
 
@@ -479,7 +473,6 @@ Add to current Negative Prompt
     {
         echo 'Join Straico via https://platform.straico.com/signup?fpr=roelf14'."\n";
         echo "Thank you and have a nice day.\n";
-        $input = '';
         exit(0);
     }
 
@@ -494,13 +487,11 @@ Add to current Negative Prompt
         
 	if ($this->exiv2) $this->setExif($aiMessage, $id);
         
-	echo "\nImage stored as $id\n";
         if ($this->logAll) {
             $this->logString("Main: Image stored as $id\n");
         }
 
-        return 0;
-
+        return "Image stored as $id";
     }
 
     public function loadModels($tpath)
