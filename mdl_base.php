@@ -220,8 +220,8 @@ $this->useModels[] = [
     'past' => '',
 ];
 $this->useModels[] = [
-    'tag' => 'x',
-    'model' => '',
+    'tag' => 'juggernaut10',
+    'model' => 'RunDiffusion/Juggernaut-X-v10',
     'pre' => '',
     'past' => '',
 ];
