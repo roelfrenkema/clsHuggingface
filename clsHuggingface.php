@@ -8,6 +8,37 @@
 
 class Huggingface
 {
+    private const HELP = '
+Commands:
+
+/helpme      
+This help
+
+/exit
+Leave class
+
+/setmodel  <model>
+Set model to shortname of model
+
+/listmodels
+Listmodels
+
+/setnp
+Set a negative prompt
+
+/loop <prompt>
+Loop through loaded models with prompt.
+
+/loadmodels <path/name>
+<path/name> from home starting with slash>
+
+/shownp
+Show negative prompt
+
+/addnp
+Add to current Negative Prompt
+';
+    
     private const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
     private $apiKey;      //secure apiKey
@@ -16,7 +47,8 @@ class Huggingface
 
     public $useModels;      //models
 
-    private $sName;       //shortname for model
+    private $sName = "base";       //shortname for model
+    public $pName = "base";       //public shortname for model
 
     public $logAll;      //logging?
 
@@ -102,31 +134,27 @@ class Huggingface
     * TODO: public function needs cleanup for readability.
     */
 
-    public function userPrompt()
+    public function userPrompt($input)
     {
 
-        $input = readline('> ');
-
-        // Add  to session history
-        readline_add_history($input);
 
         // End cls session on cli
         if ($input == '/exit') {
-            exit;
+            $this->stopPrompt;
 
             //loadmodels
         } elseif (substr($input, 0, 11) == '/loadmodels') {
-            $this->loadModels(trim(substr($input, 12)));
+            $answer = $this->loadModels(trim(substr($input, 12)));
 
             // Set negPromp
         } elseif (substr($input, 0, 6) == '/setnp') {
             $this->negPrompt = substr($input, 7);
-            echo "Negative prompt: $this->negPrompt\n";
+            $answer = "Negative prompt: $this->negPrompt\n";
 
             // Add to negPromp
         } elseif (substr($input, 0, 6) == '/addnp') {
             $this->negPrompt .= substr($input, 7);
-            echo "Negative prompt: $this->negPrompt\n";
+            $answer = "Negative prompt: $this->negPrompt\n";
 
             // Set model
         } elseif (substr($input, 0, 9) == '/setmodel') {
@@ -134,7 +162,7 @@ class Huggingface
 
             // Show current negative prompt
         } elseif ($input == '/shownp') {
-            echo "Negative prompt: $this->negPrompt\n";
+            $answer = "Negative prompt: $this->negPrompt\n";
 
             // list model
         } elseif ($input == '/listmodels') {
@@ -142,29 +170,31 @@ class Huggingface
             foreach ($this->useModels as $model) {
                 echo $model['tag'].' - '.$model['model']."\n";
             }
-
+	    $answer = " Choose a model by /setmodel <tag>\n";
+	    
             // loop prompt through models
         } elseif (substr($input, 0, 5) == '/loop') {
             $this->loopModels(substr($input, 6));
-
+	    $answer = "Loop done. \n\n";
+	    
             // logon
         } elseif ($input == '/logon') {
             $this->logAll = true;
-            echo 'Log enabled.';
+            $answer = 'Log enabled.';
 
             // logon
         } elseif ($input == '/logoff') {
             $this->logAll = false;
-            echo 'Log disabled.';
+            $answer = 'Log disabled.';
 
             //  help
         } elseif ($input == '/helpme') {
-            $this->help();
+            $answer = Huggingface::HELP;
 
             //  lastcheck on not existing command
         } elseif (substr($input, 0, 1) == '/') {
-            $answer = "\nWARNING COMMAND: $input UNKNOWN\n\n";
-            $this->help();
+	    $answer = Straico::HELP;
+            $answer .= "\nWARNING COMMAND: $input UNKNOWN\n\n";
 
             // Proccess
         } else {
@@ -172,7 +202,7 @@ class Huggingface
             $answer = $this->apiCompletion($this->userPrompt);
         }
 
-        echo "$answer\n";
+        return $answer;
     }
 
     /*
@@ -321,6 +351,7 @@ class Huggingface
 
                 $this->endPoint = Huggingface::INFERENCE.$model['model'];
                 $this->sName = $model['tag'];
+                $this->pName = $model['tag'];
                 $this->prePrompt = $model['pre'];
                 $this->pastPrompt = $model['past'];
             }
@@ -421,7 +452,7 @@ Add to current Negative Prompt
     {
 
         $myM = '-M"set Exif.Image.ImageDescription '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
-        $myM .= '-M"set Iptc.Application2.Subject '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
+        $myM .= ' -M"set Iptc.Application2.Subject '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
         $myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
         $myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
         $myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
@@ -432,7 +463,27 @@ Add to current Negative Prompt
         $myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
         $myM .= ' -M"set Iptc.Application2.Subject '.$this->endPoint.'"';
 
+var_dump($myM);
+var_dump($id);
+
         $test = shell_exec("exiv2 $myM ".$id);
+    }
+    /*
+    * Function: stopPrompt()
+    * Input   : none
+    * Output  : stops execution with errorcode 0
+    * Purpose : stop app
+    *
+    * Remarks:
+    *
+    * Private function used by $this->userPrompt()
+    */
+    private function stopPrompt()
+    {
+        echo 'Join Straico via https://platform.straico.com/signup?fpr=roelf14'."\n";
+        echo "Thank you and have a nice day.\n";
+        $input = '';
+        exit(0);
     }
 
     private function writeImage($blob)
@@ -443,10 +494,10 @@ Add to current Negative Prompt
         $image->setImageFormat('png');
         $id = $this->imgStore.$this->sName.'-'.date('jmdHms').'.png';
         $image->writeImage($id);
-        if ($this->exiv2) {
-            $this->setExif($aiMessage, $id);
-        }
-        echo "\nImage stored as $id\n";
+        
+	if ($this->exiv2) $this->setExif($aiMessage, $id);
+        
+	echo "\nImage stored as $id\n";
         if ($this->logAll) {
             $this->logString("Main: Image stored as $id\n");
         }
@@ -462,7 +513,7 @@ Add to current Negative Prompt
         } else {
             $this->useModels = [];
             include $this->userHome.$tpath;
-            echo $this->userHome.$tpath." loaded!\n";
+            return $this->userHome.$tpath." loaded!\n";
         }
     }
 }
