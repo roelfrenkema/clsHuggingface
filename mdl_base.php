@@ -52,8 +52,8 @@ $this->useModels[] = [
     'past' => ', <lora:dalle-3-xl-lora-v2:0.8>',
 ];
 $this->useModels[] = [
-    'tag' => 'playground2',
-    'model' => 'playgroundai/playground-v2-1024px-aesthetic',
+    'tag' => 'playground25',
+    'model' => 'playgroundai/playground-v2.5-1024px-aesthetic',
     'pre' => '',
     'past' => '',
 ];
