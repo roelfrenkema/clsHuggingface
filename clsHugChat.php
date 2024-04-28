@@ -7,6 +7,13 @@
  * Done with the huggingface API? Try Straico.
  * visit Straico https://platform.straico.com/signup?fpr=roelf14
  */
+ 
+ /*
+  * CHANGES:
+  * 28-04-24 Removed time date from Api completion. Only agentChat will
+  *          now open prompt with date. AgentDo /dream should not have
+  *          date available.
+  */
 
 class HugChat
 {
@@ -600,7 +607,7 @@ using _PAGE_ as a placeholder
         if (! $this->chatHistory) {
             // For the first conversation turn, only include the system prompt and user input
             $this->chatHistory = "<|system|>\n".$sysRole."<|end|>\n";
-            $this->chatHistory .= "<|user|>\n".'Time and date is '.date('Y-m-d H:i:s')."\n".$userInput."<|end|>\n";
+            $this->chatHistory .= "<|user|>\n".$userInput."<|end|>\n";
             $this->chatHistory .= "<|assistant|>\n";
         } else {
             //build converstation

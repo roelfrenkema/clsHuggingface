@@ -225,6 +225,12 @@ $this->useModels[] = [
     'pre' => '',
     'past' => '',
 ];
+$this->useModels[] = [
+    'tag' => 'assdiff',
+    'model' => 'Yntec/foto-assisted-diffusion',
+    'pre' => '',
+    'past' => '',
+];
 /*
  *
  * ? stablediffusionapi/photopedia-xl-v45
