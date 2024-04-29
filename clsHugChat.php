@@ -7,13 +7,13 @@
  * Done with the huggingface API? Try Straico.
  * visit Straico https://platform.straico.com/signup?fpr=roelf14
  */
- 
- /*
-  * CHANGES:
-  * 28-04-24 Removed time date from Api completion. Only agentChat will
-  *          now open prompt with date. AgentDo /dream should not have
-  *          date available.
-  */
+
+/*
+ * CHANGES:
+ * 28-04-24 Removed time date from Api completion. Only agentChat will
+ *          now open prompt with date. AgentDo /dream should not have
+ *          date available.
+ */
 
 class HugChat
 {
@@ -369,6 +369,8 @@ using _PAGE_ as a placeholder
         } else {
             $this->aiWrap = '0';
         }
+        $this->hugModels();				//get models from Hug
+        $this->setModel(1);				//set first model as base
         $this->aiInput = '';
         $this->aiOutput = '';
         $this->aiLog = false;
@@ -396,6 +398,7 @@ using _PAGE_ as a placeholder
 
     public function userPrompt($input)
     {
+	$input = trim($input);
 
         // End cls session on cli
         if ($input == '/exit') {
@@ -952,6 +955,47 @@ using _PAGE_ as a placeholder
     *
     * Private function used by $this->userPrompt()
     */
+    private function hugModels()
+    {
+        $endpoint = 'https://api-inference.huggingface.co/framework/text-generation-inference';
+
+        $options = [
+            'http' => [
+                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
+                        "x-use-cache: 0\r\n".
+                        "Content-Type: application/json\r\n".
+                        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+                'method' => 'GET',
+            ],
+        ];
+
+        // Create stream
+        $context = stream_context_create($options);
+
+        $result = file_get_contents($endpoint, false, $context);
+
+        $answer = json_decode($result, true);
+
+        $this->useModels = [];
+
+        //create or own format model list
+        foreach ($answer as $model) {
+
+//            if ($model['task'] !== 'text-to-image') {
+//               continue;
+//           }
+
+            $fname = $model['model_id'];
+            $name = explode('/', $fname);
+            $tag = $name[1];
+
+            $this->useModels[] = ['tag' => $tag,
+                'model' => $fname,
+                'pre' => '',
+                'past' => '',
+            ];
+        }
+    }
 
     private function listModels()
     {

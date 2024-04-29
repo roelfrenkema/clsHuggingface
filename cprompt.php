@@ -48,7 +48,10 @@ $hug->logPath = '/home/';
  */
 $hug->historySwitch = true;
 
-//getmodels
+/*
+ * Get your own models
+ * If you dont a list will be retrieved at Huggingface
+ */
 $hug->loadModels('/git/clsHuggingface/chat_base.php');
 $hug->setModel = 'meta-llama/Meta-Llama-3-70B-Instruct';
 

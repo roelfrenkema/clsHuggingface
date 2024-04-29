@@ -231,6 +231,12 @@ $this->useModels[] = [
     'pre' => '',
     'past' => '',
 ];
+$this->useModels[] = [
+    'tag' => 'test',
+    'model' => 'Yntec/RainbowDreams',
+    'pre' => '',
+    'past' => '',
+];
 /*
  *
  * ? stablediffusionapi/photopedia-xl-v45

@@ -17,6 +17,9 @@ This help
 /exit
 Leave class
 
+/hmodel
+Load Huggingface models
+
 /setmodel  <model>
 Set model to shortname of model
 
@@ -38,7 +41,7 @@ Show negative prompt
 /addnp
 Add to current Negative Prompt
 ';
-    
+
     private const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
     private $apiKey;      //secure apiKey
@@ -47,30 +50,31 @@ Add to current Negative Prompt
 
     public $useModels;      //models
 
-    private $sName = "base";       //shortname for model
-    public $pName = "base";       //public shortname for model
+    private $sName = 'base';       //shortname for model
 
-    public $logAll;      //logging?
+    public $pName = 'base';       //public shortname for model
 
-    public $imgStore;     //path to store image1
+    public $logAll = false;      //logging?
 
-    public $slMax;        //max value for sleep before passing out
+    public $imgStore = '';     //path to store image1
 
-    public $slUpdate;     // sleep incremeter
+    public $slMax = 300;        //max value for sleep before passing out
 
-    public $exiv2;        //use exiv2
+    public $slUpdate = 30;     // sleep incremeter
+
+    public $exiv2 = false;        //use exiv2
 
     public $userPrompt;       //use for prompt
 
-    public $negPrompt;     //negative prompt from user
+    public $negPrompt = 'bad anatomy';     //negative prompt from user
 
     private $prePrompt;    //add before prompt
 
     private $pastPrompt;    //add after prompt
 
-    public $exiv2User;     //get your name stamped
+    public $exiv2User = 'clsHuggingface';     //get your name stamped
 
-    public $exiv2Copy;     //copyright info
+    public $exiv2Copy = 'CC BY-NC-SA 4.0';     //copyright info
 
     private $userHome;
 
@@ -100,24 +104,16 @@ Add to current Negative Prompt
             exit;
         }
         if (! extension_loaded('imagick')) {
-            echo "PHP module imagick is needed to run clsStraico. Please install it. Exiting!\n";
+            exit("PHP module imagick is needed to run clsStraico. Please install it. Exiting!\n");
             exit;
         }
         if (getenv('INFERENCE_READ')) {
             $this->apiKey = getenv('INFERENCE_READ');
         } else {
-            echo 'Could not find the API key. Exiting!';
-            exit(-1);
+            exit('Could not find the API key. Exiting!');
         }
-        $this->useModels = [];
-        $this->imgStore = '';
-        $this->slUpdate = 30;
-        $this->slMax = 300;
-        $this->exiv2 = false;
-        $this->exiv2User = 'clsHuggingface';
-        $this->exiv2Copy = 'CC BY-NC-SA 4.0';
-        $this->negPrompt = 'distortion';
-        $this->logAll = false;
+        $this->hugModels();				//get models from Hug
+        $this->setModel($this->useModels[0]['tag']);	//set first model as base
         $this->userHome = $_ENV['HOME'];
 
         echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
@@ -136,7 +132,7 @@ Add to current Negative Prompt
 
     public function userPrompt($input)
     {
-	$input = trim( $input ) ;
+        $input = trim($input);
 
         // End cls session on cli
         if ($input == '/exit') {
@@ -170,13 +166,13 @@ Add to current Negative Prompt
             foreach ($this->useModels as $model) {
                 echo $model['tag'].' - '.$model['model']."\n";
             }
-	    $answer = " Choose a model by /setmodel <tag>\n";
-	    
+            $answer = " Choose a model by /setmodel <tag>\n";
+
             // loop prompt through models
         } elseif (substr($input, 0, 5) == '/loop') {
             $this->loopModels(substr($input, 6));
-	    $answer = "Loop done. \n\n";
-	    
+            $answer = "Loop done. \n\n";
+
             // logon
         } elseif ($input == '/logon') {
             $this->logAll = true;
@@ -191,9 +187,13 @@ Add to current Negative Prompt
         } elseif ($input == '/helpme') {
             $answer = Huggingface::HELP;
 
+            //  huggingface models
+        } elseif ($input == '/hmodels') {
+            $answer = $this->hugModels();
+
             //  lastcheck on not existing command
         } elseif (substr($input, 0, 1) == '/') {
-	    $answer = Straico::HELP;
+            $answer = Huggingface::HELP;
             $answer .= "\nWARNING COMMAND: $input UNKNOWN\n\n";
 
             // Proccess
@@ -219,7 +219,6 @@ Add to current Negative Prompt
 
     public function apiCompletion()
     {
-
         $prompt = trim($this->prePrompt.' '.$this->userPrompt.' '.$this->pastPrompt);
 
         if ($this->logAll) {
@@ -288,9 +287,9 @@ Add to current Negative Prompt
                 if ($error !== null) {
                     if (str_contains($error['message'], '503')) {
                         $timer += $this->slUpdate;
-                        echo "Model ".$this->sname." not loaded yet, trying again in $timer seconds\n";
+                        echo 'Model '.$this->sName." not loaded yet, trying again in $timer seconds\n";
                         if ($this->logAll) {
-                            $this->logString("Main: Model ".$this->sname." not loaded yet, trying again in $timer seconds\n");
+                            $this->logString('Main: Model '.$this->sName." not loaded yet, trying again in $timer seconds\n");
                         }
                         $result = '';
 
@@ -357,38 +356,46 @@ Add to current Negative Prompt
         return "\nModel is: $this->sName\n";
     }
 
-    private function help()
+    private function hugModels()
     {
-        echo '
-Commands:
+        $endpoint = 'https://api-inference.huggingface.co/framework/diffusers';
 
-/helpme      
-This help
+        $options = [
+            'http' => [
+                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
+                        "x-use-cache: 0\r\n".
+                        "Content-Type: application/json\r\n".
+                        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+                'method' => 'GET',
+            ],
+        ];
 
-/exit
-Leave class
+        // Create stream
+        $context = stream_context_create($options);
 
-/setmodel  <model>
-Set model to shortname of model
+        $result = file_get_contents($endpoint, false, $context);
 
-/listmodels
-Listmodels
+        $answer = json_decode($result, true);
 
-/setnp
-Set a negative prompt
+        $this->useModels = [];
 
-/loop <prompt>
-Loop through loaded models with prompt.
+        //create or own format model list
+        foreach ($answer as $model) {
 
-/loadmodels <path/name>
-<path/name> from home starting with slash>
+            if ($model['task'] !== 'text-to-image') {
+                continue;
+            }
 
-/shownp
-Show negative prompt
+            $fname = $model['model_id'];
+            $name = explode('/', $fname);
+            $tag = $name[1];
 
-/addnp
-Add to current Negative Prompt
-';
+            $this->useModels[] = ['tag' => $tag,
+                'model' => $fname,
+                'pre' => '',
+                'past' => '',
+            ];
+        }
     }
 
     public function loopModels($prompt)
@@ -423,8 +430,8 @@ Add to current Negative Prompt
                     $this->logString("Loop: Model skipped due to sleeptimeout, sorry.\n");
                 }
             } else {
-		echo "$response\n";
-	    }
+                echo "$response\n";
+            }
 
         }
 
@@ -442,7 +449,7 @@ Add to current Negative Prompt
 
     }
 
-    private function setExif($aiMessage, $id)
+    private function setExif($id)
     {
 
         $myM = '-M"set Exif.Image.ImageDescription '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
@@ -459,6 +466,7 @@ Add to current Negative Prompt
 
         $test = shell_exec("exiv2 $myM ".$id);
     }
+
     /*
     * Function: stopPrompt()
     * Input   : none
@@ -484,9 +492,11 @@ Add to current Negative Prompt
         $image->setImageFormat('png');
         $id = $this->imgStore.$this->sName.'-'.date('jmdHms').'.png';
         $image->writeImage($id);
-        
-	if ($this->exiv2) $this->setExif($aiMessage, $id);
-        
+
+        if ($this->exiv2) {
+            $this->setExif($id);
+        }
+
         if ($this->logAll) {
             $this->logString("Main: Image stored as $id\n");
         }
@@ -501,6 +511,7 @@ Add to current Negative Prompt
         } else {
             $this->useModels = [];
             include $tpath;
+
             return $tpath." loaded!\n";
         }
     }
