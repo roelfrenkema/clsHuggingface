@@ -398,7 +398,7 @@ using _PAGE_ as a placeholder
 
     public function userPrompt($input)
     {
-	$input = trim($input);
+        $input = trim($input);
 
         // End cls session on cli
         if ($input == '/exit') {
@@ -944,6 +944,7 @@ using _PAGE_ as a placeholder
         return $input;
 
     }
+
     /*
     * Function: listModels()
     * Input   : none
@@ -981,9 +982,9 @@ using _PAGE_ as a placeholder
         //create or own format model list
         foreach ($answer as $model) {
 
-//            if ($model['task'] !== 'text-to-image') {
-//               continue;
-//           }
+            //            if ($model['task'] !== 'text-to-image') {
+            //               continue;
+            //           }
 
             $fname = $model['model_id'];
             $name = explode('/', $fname);
