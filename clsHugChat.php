@@ -13,6 +13,8 @@
  * 28-04-24 Removed time date from Api completion. Only agentChat will
  *          now open prompt with date. AgentDo /dream should not have
  *          date available.
+ * 30-04-24 Remake of method listModels which now will support a search
+ *          needle to find one or more models.
  */
 
 class HugChat
@@ -288,9 +290,9 @@ using _PAGE_ as a placeholder
              
             ';
 
-    private $aiInput;		//complete ai input
+    private $aiInput = '';		//complete ai input
 
-    private $aiOutput;		//complete ai output
+    private $aiOutput = '';		//complete ai output
 
     private $aiRole = 'cli';
 
@@ -298,13 +300,13 @@ using _PAGE_ as a placeholder
 
     private $apiKey;		//secure apiKey
 
-    private $chatHistory;		//Keep a history to emulate chat
+    private $chatHistory = '';		//Keep a history to emulate chat
 
     private $includeDir = __DIR__.'/include/';
 
-    private $histArray;		//Keep a history to emulate chat
+    private $histArray = [];		//Keep a history to emulate chat
 
-    private $clsVersion;		//version set in construct
+    private $clsVersion = '0.0.2';		//version set in construct
 
     private $storeHistory;		//Temporary store history
 
@@ -312,11 +314,11 @@ using _PAGE_ as a placeholder
 
     private $userHome;		//User homedir
 
-    private $usrPrompt;		//userprompt preserved getInput()
+    private $usrPrompt = '> ';		//userprompt preserved getInput()
 
-    public $aiLog;			//log convo to file boolean
+    public $aiLog = false;			//log convo to file boolean
 
-    public $aiModel;		//current working model
+    public $aiModel = 'HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1'; //current working model
 
     public $aiWrap;			//wrap output.
 
@@ -324,9 +326,9 @@ using _PAGE_ as a placeholder
 
     public $logPath;		//logging path
 
-    public $useModels;		//filled with available models
+    public $useModels = [];		//filled with available models
 
-    public $userPipe;		//user pipecommand
+    public $userPipe = '';		//user pipecommand
 
     public $webPage;		//filled with _PAGE_ data
 
@@ -362,26 +364,15 @@ using _PAGE_ as a placeholder
             echo 'Could not find environment variable INFERENCE_READ with the API key. Exiting!';
             exit(-1);
         }
-        $this->useModels = [];
-        $this->aiModel = 'meta-llama/Llama-2-70b-chat-hf';
+
         if (getenv('WORD_WRAP')) {
             $this->aiWrap = getenv('WORD_WRAP');
         } else {
             $this->aiWrap = '0';
         }
         $this->hugModels();				//get models from Hug
-        $this->setModel(1);				//set first model as base
-        $this->aiInput = '';
-        $this->aiOutput = '';
-        $this->aiLog = false;
-        $this->chatHistory = '';
-        $this->historySwitch = false;
-        $this->clsVersion = '0.0.1';
         $this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
         $this->userHome = $_ENV['HOME'];
-        $this->usrPrompt = '> ';
-        $this->userPipe = '';
-        $this->histArray = [];
         echo "Welcome to clsHugchat $this->clsVersion - enjoy!\n\n";
     }
 
@@ -413,8 +404,8 @@ using _PAGE_ as a placeholder
             $this->getWebpage(substr($input, 9));
 
             // List available models
-        } elseif ($input == '/listmodels') {
-            $this->listModels();
+        } elseif (substr($input, 0, 11) == '/listmodels') {
+            $this->listModels(substr($input, 12));
             $answer = '';
 
             // Stop writing to file
@@ -427,16 +418,20 @@ using _PAGE_ as a placeholder
             $this->aiLog = true;
             echo 'Appending conversation to '.$this->logPath."/clsHugchat.txt\n";
 
+            // Start looping
+        } elseif (substr($input, 0, 5) == '/loop') {
+            $answer = $this->loopModels(substr($input, 6));
+
             // Stop history
         } elseif (substr($input, 0, 8) == '/histoff') {
             $this->historySwitch = false;
-            $this->initChat();
+            $this->chatHistory = '';
             echo "You have disabled history!\n";
 
             // Start history
         } elseif (substr($input, 0, 7) == '/histon') {
             $this->historySwitch = true;
-            $this->initChat();
+            $this->chatHistory = '';
             echo "You have enabled history for chats.\n";
 
             // Save history
@@ -802,20 +797,26 @@ using _PAGE_ as a placeholder
     }
 
     /*
-    * Function: agentDo($name,$input)
-    * Input   : $name = constant name $prompt userinput
-    * Output  : dependa
-    * Purpose : Save methodes
+    * Function: agentDo($sysRole,$userInput)
+    * Input   : $sysRole $userInput
+    * Output  : depend on assistant
+    * Purpose : execute single call assistants
     *
     * Remarks:
     *
     */
     private function agentDo($sysRole, $userInput)
     {
-
+        //store history so we can resume at the end
         $this->storeHistory = $this->chatHistory;
+
+        //delete history so sysRole will be applied
         $this->chatHistory = '';
+
+        //call the assistant
         $answer = $this->apiCompletion($sysRole, $userInput);
+
+        //restore history
         $this->chatHistory = $this->storeHistory;
 
         return $answer;
@@ -946,72 +947,98 @@ using _PAGE_ as a placeholder
     }
 
     /*
-    * Function: listModels()
+    * Function: hugModels()
     * Input   : none
-    * Output  : print model list
-    * Purpose : printing a nicely formated model list with info and
-    *           pointer to use for /setmodel
+    * Output  : none
+    * Purpose : Retrieve huggingface text models
     *
     * Remarks:
-    *
-    * Private function used by $this->userPrompt()
     */
+
     private function hugModels()
     {
-        $endpoint = 'https://api-inference.huggingface.co/framework/text-generation-inference';
+        try {
+            // Set up endpoint URL and API key
+            $endpoint = 'https://api-inference.huggingface.co/framework/text-generation-inference';
+            $apiKey = $this->apiKey;
 
-        $options = [
-            'http' => [
-                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
-                        "x-use-cache: 0\r\n".
-                        "Content-Type: application/json\r\n".
-                        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
-                'method' => 'GET',
-            ],
-        ];
-
-        // Create stream
-        $context = stream_context_create($options);
-
-        $result = file_get_contents($endpoint, false, $context);
-
-        $answer = json_decode($result, true);
-
-        $this->useModels = [];
-
-        //create or own format model list
-        foreach ($answer as $model) {
-
-            //            if ($model['task'] !== 'text-to-image') {
-            //               continue;
-            //           }
-
-            $fname = $model['model_id'];
-            $name = explode('/', $fname);
-            $tag = $name[1];
-
-            $this->useModels[] = ['tag' => $tag,
-                'model' => $fname,
-                'pre' => '',
-                'past' => '',
+            // Configure request options (headers and method)
+            $options = [
+                'http' => [
+                    'header' => "Authorization: Bearer {$apiKey}\r\n".
+                                "x-use-cache: 0\r\n".
+                                "Content-Type: application/json\r\n".
+                                $this->userAgent."\r\n",
+                    'method' => 'GET',
+                ],
             ];
+
+            // Send HTTP GET request using configured context
+            $context = stream_context_create($options);
+            $result = file_get_contents($endpoint, false, $context);
+
+            // Decode JSON response into array
+            $answer = json_decode($result, true);
+
+            // Process models from the response
+            $this->useModels = [];
+            foreach ($answer as $model) {
+                $fname = $model['model_id'];
+                $nameParts = explode('/', $fname);
+                $tag = isset($nameParts[1]) ? $nameParts[1] : '';
+
+                $this->useModels[] = [
+                    'tag' => $tag,
+                    'model' => $fname,
+                    'pre' => '',
+                    'past' => '',
+                ];
+            }
+        } catch (\Exception $e) {
+            echo 'Error: '.$e->getMessage();
         }
     }
 
-    private function listModels()
-    {
+    /*
+    * Function: listmodels()
+    * Input   : none
+    * Output  : none
+    * Purpose : list current models
+    *
+    * Remarks:
+    */
 
+    private function listModels($searchString = null)
+    {
+        $modelsFound = [];
         $point = 0;
+
+        // Iterate over models and check if they match the search string (case-insensitive)
         foreach ($this->useModels as $arModel) {
             $point++;
-            echo "Model $point\n";
-            if ($arModel['model'] == $this->aiModel) {
-                echo '* ';
+
+            // If no search string is provided or if the current model matches the search string, proceed to display it
+            if (! $searchString || stripos($arModel['model'], $searchString) !== false) {
+
+                // Add the current model to the found models array
+                $modelsFound[] = [
+                    'counter' => $point,
+                    'name' => $arModel['tag'],
+                    'model' => $arModel['model'],
+                ];
+
+                // Display the model information
+                echo "Model $point:\n";
+                if ($arModel['model'] === $this->aiModel) {
+                    echo '* ';
+                }
+                echo "- Name: {$arModel['tag']}\n";
+                echo "- Model: {$arModel['model']}\n";
+                echo "---\n";
             }
-            echo 'Name: '.$arModel['tag']."\n";
-            echo 'Model: '.$arModel['model']."\n";
-            echo "\n";
         }
+
+        return $modelsFound;
     }
     /*
     * Function: loadModels()
@@ -1053,13 +1080,79 @@ using _PAGE_ as a placeholder
     private function loadHistory($name)
     {
 
-        $this->initChat();
+        $this->chatHistory = '';
 
         $id = $this->logPath.'/'.$name.'.hist';
         $this->chatHistory = json_decode(file_get_contents($id));
 
         echo "Loaded your history from $name.\n";
 
+    }
+
+    /*
+     * Function: loopmodel($userInput)
+     * Input   : filename
+     * Output  : none
+     * Purpose : load history
+     *
+     * Remarks:
+     */
+    public function loopModels($userInput)
+    {
+
+        if (substr($userInput, 0, 1) == '/') {
+
+            $findNeedle = explode(' ', $userInput, 2);
+
+            if (count($findNeedle) < 2) {
+                return "Input invalid to small\n";
+            }
+
+            $command = substr($findNeedle[0], 1);
+            $prompt = $findNeedle[1];
+
+            if ($command == 'academic' || $command == 'bigblog' ||
+                 $command == 'dream' || $command == 'enhance' ||
+                 $command == 'factcheck' || $command == 'gist' ||
+                 $command == 'html2md' || $command == 'mediumblog' ||
+                 $command == 'mkpwd' || $command == 'regex' ||
+                 $command == 'smallblog' || $command == 'textcheck' ||
+                 $command == 'todo') {
+                $modName = strtoupper($command);
+            } else {
+                return "$command is not a valid command name.\n";
+            }
+        } else {
+            $modName = 'BASEROLE';
+        }
+
+        $sysModel = constant('HugChat::'.$modName);
+
+        //prevent history
+        $this->chatHistory = '';
+
+        //store current model.
+        $storename = $this->aiModel;
+
+        foreach ($this->useModels as $model) {
+
+            $this->chatHistory = '';
+
+            $response = '';
+
+            echo "\n\nModel:".$model['tag']."\n\n";
+            //set endpoint
+            $this->aiModel = $model['model'];
+            //echo "prompt: $prompt \n";
+            $response = $this->apiCompletion($sysModel, $prompt);
+
+            echo "$response\n";
+        }
+
+        // restore endPoint
+        $this->aiModel($storeSname);
+
+        return 'Loop done!';
     }
 
     /*
@@ -1093,6 +1186,8 @@ using _PAGE_ as a placeholder
     {
         $this->chatHistory = '';
         $this->aiModel = $this->useModels[$input - 1]['model'];
+        $this->aiRole = $this->useModels[$input - 1]['tag'];
+        $this->pubRole = $this->useModels[$input - 1]['tag'];
 
         return "Model set to: $this->aiModel \n";
     }
