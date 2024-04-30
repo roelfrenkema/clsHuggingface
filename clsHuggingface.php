@@ -504,6 +504,7 @@ function listNp() {
 
             //set endpoint
             $this->setModel($mp);
+	    
 	    $mp++;
 
             $response = $this->apiCompletion();
