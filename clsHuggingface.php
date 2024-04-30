@@ -506,12 +506,12 @@ Add to current Negative Prompt
         $mp = 0;
 
         foreach ($this->useModels as $model) {
-            $response = '';
 
+            $response = '';
+            $mp++;
+	    
             //set endpoint
             $this->setModel($mp);
-
-            $mp++;
 
             $response = $this->apiCompletion();
 
