@@ -496,12 +496,15 @@ function listNp() {
         //store current model.
         $storeSname = $this->sName;
         $this->userPrompt = $prompt;
-
+        $mp=0
+	
         foreach ($this->useModels as $model) {
             $response = '';
+	     
 
             //set endpoint
-            $this->setModel($model['tag']);
+            $this->setModel($mp);
+	    $mp++;
 
             $response = $this->apiCompletion();
 
