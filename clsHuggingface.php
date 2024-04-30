@@ -5,6 +5,16 @@
  * visit http://creativecommons.org/licenses/by-nc-sa/4.0/
  *
  */
+ 
+ /* Updates
+  * 
+  * 30-04-2024 - changes to listmodels that allow for search now
+  *              /listmodels <needle>
+  *            - changes to methode /setmodel that now uses the model
+  *              number given by /listmodels
+  *            - added buildin prompts see /listnp and /getnp
+  * 
+  */
 
 class Huggingface
 {
@@ -29,6 +39,12 @@ Listmodels
 /setnp
 Set a negative prompt
 
+/listnp
+list buildin prompts
+
+/getnp 
+Get one of the buildin neg.prompts
+
 /loop <prompt>
 Loop through loaded models with prompt.
 
@@ -36,7 +52,7 @@ Loop through loaded models with prompt.
 <path/name> from home starting with slash>
 
 /shownp
-Show negative prompt
+Show current negative prompt
 
 /addnp
 Add to current Negative Prompt
@@ -66,7 +82,35 @@ Add to current Negative Prompt
 
     public $userPrompt;       //use for prompt
 
-    public $negPrompt = 'bad anatomy';     //negative prompt from user
+    private $nPrompt = [['name' => 'common',
+			 'np' => 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,',
+			 'description' => 'A commonly used NP with a broad impact. But nothing special. Set as default NP.'],
+			['name' => 'anatomy',
+			 'np' => 'Bad anatomy, Bad hands, Amputee, Missing fingers, Missing hands, Missing limbs, Missing arms, Extra fingers, Extra hands, Extra limbs , Mutated hands, Mutated, Mutation, Multiple heads, Malformed limbs, Disfigured, Poorly drawn hands, Poorly drawn face, Long neck, Fused fingers, Fused hands, Dismembered, Duplicate , Improper scale, Ugly body, Cloned face, Cloned body , Gross proportions, Body horror, Too many fingers, Cross Eyes,',
+			 'description' => 'This one concentrates on the anatomy of the subject. Great for groups etc.'],
+			['name' => 'realistic',
+			 'np' => 'Cartoon, CGI, Render, 3D, Artwork, Illustration, 3D render, Cinema 4D, Artstation, Octane render, Painting, Oil painting, Anime , 2D , Sketch, Drawing , Bad photography, Bad photo, Deviant art,',
+			 'description' => 'This one is great for photo realistic work, excluding things like 3D etc. '],
+			['name' => 'nsfw',
+			 'np' => 'nsfw, uncensored, cleavage, nude, nipples, children,',
+			 'description' => 'use if you have dangerous prompts and dont want to get confronted with unwanted content'],
+			['name' => 'landscape',
+			 'np' => 'Overexposed, Simple background, Plain background, Grainy , Portrait, Grayscale, Monochrome, Underexposed, Low contrast, Low quality, Dark , Distorted, White spots , Deformed structures, Macro , Multiple angles,',
+			 'description' => 'A special prompt developed to enhence your landscape artwork'],
+			['name' => 'object',
+			 'np' => 'Asymmetry , Parts, Components , Design, Broken, Cartoon, Distorted, Extra pieces, Bad proportion, Inverted, Misaligned, Macabre , Missing parts, Oversized , Tilted,',
+			 'description' => 'Objects can be difficult, this NP takes the sting out of most problems'],
+			['name' => 'clsv1',
+			 'np' => 'painting, sketch,  plastic, (3d), cgi, semi-realistic, cartoon, ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad proportions, cloned face, disfigured, out of frame, extra limbs, (bad anatomy), gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck,',
+			 'description' => 'Alternative for the common prompt'],
+			['name' => 'clsv2',
+			 'np' => 'ugly, duplicate, morbid, mutilated, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad proportions, cloned face, disfigured, out of frame, extra limbs, (bad anatomy), gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, fused fingers, too many fingers, long neck,',
+			 'description' => 'Alternative for the common prompt'],
+			['name' => 'clsv3',
+			 'np' => 'out of frame, duplicate, ugly, poorly drawn hands, poorly drawn face, morbid, mutated hands, extra fingers, deformed, blurry, bad anatomy, bad proportions, extra limbs, long neck, cloned face, watermark, signature, text, poorly drawn, normal quality,',
+			 'description' => 'Alternative for the common prompt'],
+			];
+    public $negPrompt = 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,';     //negative prompt from user
 
     private $prePrompt;    //add before prompt
 
@@ -113,11 +157,10 @@ Add to current Negative Prompt
             exit('Could not find the API key. Exiting!');
         }
         $this->hugModels();				//get models from Hug
-        $this->setModel($this->useModels[0]['tag']);	//set first model as base
+        $this->setModel(1);	//set first model as base
         $this->userHome = $_ENV['HOME'];
 
         echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
-
     }
     /*
     * Function: $userPrompt()
@@ -140,12 +183,16 @@ Add to current Negative Prompt
 
             //loadmodels
         } elseif (substr($input, 0, 11) == '/loadmodels') {
-            $answer = $this->loadModels(trim(substr($input, 12)));
+            $answer = $this->loadModels(substr($input, 12));
 
             // Set negPromp
         } elseif (substr($input, 0, 6) == '/setnp') {
             $this->negPrompt = substr($input, 7);
             $answer = "Negative prompt: $this->negPrompt\n";
+
+            // Get buildin promp
+        } elseif (substr($input, 0, 6) == '/getnp') {
+            $answer =$this->getNp(substr($input, 7));
 
             // Add to negPromp
         } elseif (substr($input, 0, 6) == '/addnp') {
@@ -160,13 +207,15 @@ Add to current Negative Prompt
         } elseif ($input == '/shownp') {
             $answer = "Negative prompt: $this->negPrompt\n";
 
-            // list model
-        } elseif ($input == '/listmodels') {
+            // List available models
+        } elseif (substr($input, 0, 11) == '/listmodels') {
+            $this->listModels(substr($input, 12));
+            $answer = '';
 
-            foreach ($this->useModels as $model) {
-                echo $model['tag'].' - '.$model['model']."\n";
-            }
-            $answer = " Choose a model by /setmodel <tag>\n";
+            // List negative prompts
+        } elseif (substr($input, 0, 7) == '/listnp') {
+            $this->listNp(substr($input, 8));
+            $answer = '';
 
             // loop prompt through models
         } elseif (substr($input, 0, 5) == '/loop') {
@@ -337,21 +386,27 @@ Add to current Negative Prompt
         return $answer;
 
     }
+    
+    public function getNp($userInput){
 
+	foreach ($this->nPrompt as $item) {
+
+	    if($item['name'] == $userInput){ 
+		$negPrompt = $item['np'];
+		return "Prompt set to ".$item['name'];
+	    }
+	}
+	return "Requested prompt not found. Check name.";
+    }
+    
     public function setModel($input)
     {
-
-        foreach ($this->useModels as $model) {
-
-            if ($model['tag'] == trim($input)) {
-
-                $this->endPoint = Huggingface::INFERENCE.$model['model'];
-                $this->sName = $model['tag'];
-                $this->pName = $model['tag'];
-                $this->prePrompt = $model['pre'];
-                $this->pastPrompt = $model['past'];
-            }
-        }
+	$this->endPoint = Huggingface::INFERENCE.$this->useModels[$input - 1]['model'];
+		
+	$this->sName = $this->useModels[$input - 1]['tag'];
+	$this->pName = $this->useModels[$input - 1]['tag'];
+	$this->prePrompt = $this->useModels[$input - 1]['pre'];
+	$this->pastPrompt = $this->useModels[$input - 1]['past'];
 
         return "\nModel is: $this->sName\n";
     }
@@ -397,7 +452,44 @@ Add to current Negative Prompt
             ];
         }
     }
+   private function listModels($searchString = null)
+    {
+        $modelsFound = [];
+        $point = 0;
 
+        // Iterate over models and check if they match the search string (case-insensitive)
+        foreach ($this->useModels as $arModel) {
+            $point++;
+
+            // If no search string is provided or if the current model matches the search string, proceed to display it
+            if (! $searchString || stripos($arModel['model'], $searchString) !== false) {
+
+                // Add the current model to the found models array
+                $modelsFound[] = [
+                    'counter' => $point,
+                    'name' => $arModel['tag'],
+                    'model' => $arModel['model'],
+                ];
+
+                // Display the model information
+                echo "Model $point:\n";
+ //               if ($arModel['model'] === $this->aiModel) {
+ //                   echo '* ';
+ //               }
+                echo "- Name: {$arModel['tag']}\n";
+                echo "- Model: {$arModel['model']}\n";
+                echo "---\n";
+            }
+        }
+
+        return $modelsFound;
+    }
+function listNp() {
+    foreach ($this->nPrompt as $item) {
+        echo "Prompt name: " . $item['name'] . ", \nDescription: " . $item["description"] . "\n\n";
+    }
+}
+ 
     public function loopModels($prompt)
     {
 
