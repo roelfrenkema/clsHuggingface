@@ -9,19 +9,20 @@ $this->useModels[] = [
     'pre' => '',
     'past' => '',
 ];
+
 $this->useModels[] = [
     'tag' => 'nousmix',
     'model' => 'NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO',
     'pre' => '',
     'past' => '',
 ];
+
 $this->useModels[] = [
     'tag' => 'cohere',
     'model' => 'CohereForAI/c4ai-command-r-plus',
     'pre' => '',
     'past' => '',
 ];
-// only the small model on serverless
 $this->useModels[] = [
     'tag' => 'gemma7b',
     'model' => 'google/gemma-1.1-7b-it',

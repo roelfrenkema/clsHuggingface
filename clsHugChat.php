@@ -10,14 +10,22 @@
 
 /*
  * CHANGES:
+ *
+ * 01-05-24 - Added chat assistant /talkto <character> an assistant
+ *            that enables you to talk to any character from history,
+ *            contemporary or fiction.
+ *          - Repaired a bug where /loop would break on finish
+ *
+ * 30-04-24 - Remake of method listModels which now will support a
+ *            search needle to find one or more models.
+ *          - Added new assistant /opusdream <prompt> a new SD prompt
+ *            maker.
+ *          - Added /dreambuilder a chat assistant that can guide and
+ *            help you building a Stable Diffusion promp.
+ *
  * 28-04-24 - Removed time date from Api completion. Only agentChat will
  *            now open prompt with date. AgentDo /dream should not have
  *            date available.
- * 30-04-24 - Remake of method listModels which now will support a 
- *            search needle to find one or more models.
- *          - Added new assistant /opusdream a new SD prompt maker
- *          - Added /dreambuilder a chat assistant that can guide and
- *            help you building a Stable Diffusion promp.
  */
 
 class HugChat
@@ -77,7 +85,7 @@ Your task is, based on the information above and (an improved IDEA) that the use
 Respond only with the prompt and a negative prompt, do not add any additional comments or information.
 ';
 
-private const DREAMBUILDER = 'You are Diffusion Master, an expert in crafting intricate prompts for the generative AI \'Stable Diffusion\', ensuring top-tier image generation by always thinking step by step and showing your work. You maintain a casual tone, always fill in the missing details to enrich prompts, and treat each interaction as unique. You can engage in dialogues in any language but always create prompts in English. You are designed to guide users through creating prompts that can result in potentially award-winning images, with attention to detail that includes background, style, and additional artistic requirements.
+    private const DREAMBUILDER = 'You are Diffusion Master, an expert in crafting intricate prompts for the generative AI \'Stable Diffusion\', ensuring top-tier image generation by always thinking step by step and showing your work. You maintain a casual tone, always fill in the missing details to enrich prompts, and treat each interaction as unique. You can engage in dialogues in any language but always create prompts in English. You are designed to guide users through creating prompts that can result in potentially award-winning images, with attention to detail that includes background, style, and additional artistic requirements.
 
 Basic information required to make a Stable Diffusion prompt:
 
@@ -265,6 +273,22 @@ Saylor uses narrative actions such as *she smiles*, *she winks*, *she gently wak
 
 Your task is to act with the information above to the user input promp.';
 
+    private const TALKTO = 'You know everything about characters from history, literature and contemporary and will play the requested character the user wants to talk to in this roleplay.
+
+You will stay in this role during the conversation and use your knowledge of the character and its history to give the user the impression you are the character. You achieve this by your knowledge of the character\'s history, character, tone and speech.
+
+Examples:
+
+Jack Sparrow. Use his pirate language and wit.
+Albert Einstein. Use your profound knowledge of physics.
+Ariana Grande. Use her wit and expressions.
+
+It is your task to give the user the experience meeting the character and act accordingly.
+
+Start the conversation by introducing yourself as the character you play and ask the users name. Stay in your role, give no other comments or clarification.
+ 
+The character the user wants you to play is ';
+
     private const TEXTCHECK = 'Analyze and improve the provided text:
 
 Instructions:
@@ -411,6 +435,8 @@ using _PAGE_ as a placeholder
 
     public $webPage;		//filled with _PAGE_ data
 
+    public $intModel = 1; // model number used by setModel and loopModels
+
     /*
     * Function: __construct
     * Input   : not applicable
@@ -483,7 +509,7 @@ using _PAGE_ as a placeholder
             if ($this->aiRole !== 'cli') {
                 $this->aiRole = 'cli';
                 $this->pubRole = 'cli';
-		$this->chatHistory = '';
+                $this->chatHistory = '';
             }
             $answer = 'Returned to baserole';
 
@@ -584,7 +610,7 @@ using _PAGE_ as a placeholder
         } elseif (substr($input, 0, 8) == '/bigblog') {
             $answer = $this->agentDo(HugChat::BIGBLOG, substr($input, 9));
 
-	    // Space was needed to not trigger on /dreambuilder
+            // Space was needed to not trigger on /dreambuilder
         } elseif (substr($input, 0, 7) == '/dream ') {
             $answer = $this->agentDo(HugChat::DREAM, substr($input, 7));
 
@@ -645,8 +671,18 @@ using _PAGE_ as a placeholder
                 $input = substr($input, 8);
             }
             $answer = $this->apiCompletion(HugChat::SAYLOR, $input);
-	    
-           // The Dreambuilder
+
+            // TalkTo
+        } elseif (substr($input, 0, 7) == '/talkto' || $this->aiRole == 'TT') {
+            if ($this->aiRole !== 'TT') {
+                $this->chatHistory = '';
+                $this->aiRole = 'TT';
+                $this->pubRole = 'TT';
+                $input = substr($input, 8);
+            }
+            $answer = $this->apiCompletion(HugChat::TALKTO, $input);
+
+            // The Dreambuilder
         } elseif (substr($input, 0, 13) == '/dreambuilder' || $this->aiRole == 'DB') {
             if ($this->aiRole !== 'DB') {
                 $this->chatHistory = '';
@@ -750,6 +786,9 @@ using _PAGE_ as a placeholder
 
         // Communicate
         $result = @file_get_contents($endPoint, false, $context);
+
+        // Restore the previous error reporting level
+        error_reporting($previous_error_reporting);
 
         // Check if an error occurred
         if ($result === false) {
@@ -1202,6 +1241,8 @@ using _PAGE_ as a placeholder
     public function loopModels($userInput)
     {
 
+        $prompt = $userInput;
+
         if (substr($userInput, 0, 1) == '/') {
 
             $findNeedle = explode(' ', $userInput, 2);
@@ -1220,6 +1261,7 @@ using _PAGE_ as a placeholder
                  $command == 'mkpwd' || $command == 'regex' ||
                  $command == 'smallblog' || $command == 'textcheck' ||
                  $command == 'todo') {
+
                 $modName = strtoupper($command);
             } else {
                 return "$command is not a valid command name.\n";
@@ -1230,29 +1272,25 @@ using _PAGE_ as a placeholder
 
         $sysModel = constant('HugChat::'.$modName);
 
-        //prevent history
-        $this->chatHistory = '';
-
         //store current model.
-        $storename = $this->aiModel;
+        $storeName = $this->intModel;
 
         foreach ($this->useModels as $model) {
 
             $this->chatHistory = '';
 
-            $response = '';
+            echo "\n\nModel :".$model['tag']."\n\n";
 
-            echo "\n\nModel:".$model['tag']."\n\n";
             //set endpoint
             $this->aiModel = $model['model'];
-            //echo "prompt: $prompt \n";
+
             $response = $this->apiCompletion($sysModel, $prompt);
 
             echo "$response\n";
         }
 
         // restore endPoint
-        $this->aiModel($storeSname);
+        $this->setModel($storeName);
 
         return 'Loop done!';
     }
@@ -1287,6 +1325,9 @@ using _PAGE_ as a placeholder
     public function setModel($input)
     {
         $this->chatHistory = '';
+
+        $this->intModel = $input;
+
         $this->aiModel = $this->useModels[$input - 1]['model'];
         $this->aiRole = $this->useModels[$input - 1]['tag'];
         $this->pubRole = $this->useModels[$input - 1]['tag'];

@@ -509,7 +509,7 @@ Add to current Negative Prompt
 
             $response = '';
             $mp++;
-	    
+
             //set endpoint
             $this->setModel($mp);
 
