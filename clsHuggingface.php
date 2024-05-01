@@ -8,7 +8,9 @@
 
 /* Updates
  *
- * 30-04-2024 - changes to listmodels that allow for search now
+ * 01-05-2024 - Made the picture properties public. Now user can
+ * 		experiment with them.
+ * 30-04-2024 - Changes to listmodels that allow for search now
  *              /listmodels <needle>
  *            - changes to methode /setmodel that now uses the model
  *              number given by /listmodels
@@ -122,6 +124,25 @@ Add to current Negative Prompt
     public $exiv2Copy = 'CC BY-NC-SA 4.0';     //copyright info
 
     private $userHome;
+
+    public $wait_for_model = true; // api waiting for reply
+
+    //Higher guidance scale encourages to generate images that are
+    //closely linked to the text prompt, usually at the expense of
+    //lower image quality. Default 7.5
+    public $guidance_scale = 12;
+
+    //num_inference_steps (int, optional, defaults to 50) — The number
+    //of denoising steps. More denoising steps usually lead to a higher
+    //quality image at the expense of slower inference.
+    public $num_inference_steps = 50;
+
+    //By default, SDXL generates a 1024x1024 image for the best results.
+    //You can try setting the height and width parameters to 768x768 or
+    //512x512, but anything below 512x512 is not likely to work.
+    public $width = 1024;
+
+    public $height = 1024;
 
     /*
     * Function: __construct
@@ -279,12 +300,12 @@ Add to current Negative Prompt
 
         // Prepare query data
         $data = http_build_query(['inputs' => $prompt,
-            'wait_for_model' => true,
+            'wait_for_model' => $this->wait_for_model,
             'negative_prompt' => $this->negPrompt,
-            'guidance_scale' => 30,
-            'num_inference_steps' => 50,
-            'width' => 1024,
-            'height' => 1024,
+            'guidance_scale' => $this->guidance_scale,
+            'num_inference_steps' => $this->num_inference_steps,
+            'width' => $this->width,
+            'height' => $this->height,
         ],
         );
 
