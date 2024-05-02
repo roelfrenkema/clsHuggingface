@@ -1293,6 +1293,15 @@ using _PAGE_ as a placeholder
 
         $prompt = $userInput;
 
+        //store current model.
+        $storeName = $this->intModel;
+
+	//prevent repetitious pipe
+        if ($this->userPipe) $this->apiPipe();
+	$storePipe = $this->userPipe;
+	$this->userPipe ='';
+
+
         if (substr($userInput, 0, 1) == '/') {
 
             $findNeedle = explode(' ', $userInput, 2);
@@ -1322,8 +1331,6 @@ using _PAGE_ as a placeholder
 
         $sysModel = constant('HugChat::'.$modName);
 
-        //store current model.
-        $storeName = $this->intModel;
 
         foreach ($this->useModels as $model) {
 
@@ -1341,7 +1348,8 @@ using _PAGE_ as a placeholder
 
         // restore endPoint
         $this->setModel($storeName);
-
+	// restore pipe
+	$this->userPipe = $storePipe;
         return 'Loop done!';
     }
 

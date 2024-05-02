@@ -124,6 +124,7 @@ Add to current Negative Prompt
     public $exiv2Copy = 'CC BY-NC-SA 4.0';     //copyright info
 
     private $userHome;
+    private $userAgent = '';		//Useragent string
 
     public $wait_for_model = true; // api waiting for reply
 
@@ -145,7 +146,8 @@ Add to current Negative Prompt
     public $height = 1024;
     
     public $intModel = 1; // model number used by setModel and loopModels
-
+    public $userpipe = '';
+    
     /*
     * Function: __construct
     * Input   : not applicable
@@ -183,6 +185,7 @@ Add to current Negative Prompt
         $this->hugModels();				//get models from Hug
         $this->setModel(1);	//set first model as base
         $this->userHome = $_ENV['HOME'];
+        $this->userAgent = 'clsHuggingface.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
 
         echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
     }
@@ -317,7 +320,7 @@ Add to current Negative Prompt
                 'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
                         "x-use-cache: 0\r\n".
                         "Content-Type: application/json\r\n".
-                        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+                       'User-Agent: '.$this->userAgent." \r\n",
                 'method' => $httpMethod,
                 'content' => $data,
             ],
@@ -406,8 +409,36 @@ Add to current Negative Prompt
         // Write the image.
 
         $answer = $this->writeImage($result);
+	
+        if ($this->userPipe) $this->apiPipe();
+        
+
 
         return $answer;
+
+    }
+    /*
+    * Function: apiPipe()
+    * Input   : none
+    * Output  : a shell pipe
+    * Purpose : Use apiOutput elsewhere
+    *
+    * Remarks:
+    *
+    */
+    private function apiPipe()
+    {
+
+        if (! $this->userPipe) {
+            return;
+        }
+
+        //tokenreplacement
+        $temp = str_ireplace('%prompt%', $this->userPrompt, $this->userPipe);
+
+//        $temp2 = str_ireplace('%answer%', $this->aiAnswer, $temp);
+
+        `$temp`;
 
     }
 
@@ -524,8 +555,14 @@ Add to current Negative Prompt
     {
 
         //store current model.
-        $storeSname = $this->intModel;
+        $storeName = $this->intModel;
         $this->userPrompt = $prompt;
+
+	//prevent repetitious pipe
+        if ($this->userPipe) $this->apiPipe();
+	$storePipe = $this->userPipe;
+	$this->userPipe ='';
+
         $mp = 0;
 
         foreach ($this->useModels as $model) {
@@ -561,8 +598,8 @@ Add to current Negative Prompt
         }
 
         // restore endPoint
-        $this->setModel($storeSname);
-
+        $this->setModel($storeName);
+        $this->userPipe = $storePipe;
     }
 
     public function logString($string)
