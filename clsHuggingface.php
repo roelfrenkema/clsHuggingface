@@ -143,6 +143,8 @@ Add to current Negative Prompt
     public $width = 1024;
 
     public $height = 1024;
+    
+    public $intModel = 1; // model number used by setModel and loopModels
 
     /*
     * Function: __construct
@@ -522,7 +524,7 @@ Add to current Negative Prompt
     {
 
         //store current model.
-        $storeSname = $this->sName;
+        $storeSname = $this->intModel;
         $this->userPrompt = $prompt;
         $mp = 0;
 
