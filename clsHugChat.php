@@ -424,6 +424,7 @@ using _PAGE_ as a placeholder
     public $aiLog = false;			//log convo to file boolean
 
     public $aiModel = 'HuggingFaceH4/zephyr-orpo-141b-A35b-v0.1'; //current working model
+    public $pubModel = 'zephyr-orpo-141b-A35b-v0.1'; //current working model
 
     public $aiWrap;			//wrap output.
 
@@ -1357,8 +1358,8 @@ using _PAGE_ as a placeholder
         $this->intModel = $input;
 
         $this->aiModel = $this->useModels[$input - 1]['model'];
-        $this->aiRole = $this->useModels[$input - 1]['tag'];
-        $this->pubRole = $this->useModels[$input - 1]['tag'];
+	$granate = explode("/",$this->useModels[$input - 1]['model']);
+	$this->pubModel = $granate[1];
 
         return "Model set to: $this->aiModel \n";
     }

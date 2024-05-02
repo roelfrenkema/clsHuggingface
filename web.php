@@ -10,30 +10,25 @@
  * 
  */
 
-//Only for external classes pulled with composer
-//require_once'vendor/autoload.php'
-
-$home = $_ENV['HOME'];
-
-set_include_path($home.'/git/clsHuggingface');
-
-include('clsHugChat.php');
-require_once $home.'/git/clsHuggingface/vendor/autoload.php';
+require_once('./clsHugChat.php');
+require_once('./vendor/autoload.php');
 
 use function Laravel\Prompts\textarea;
 use function Laravel\Prompts\info;
 
 $hug = new HugChat;
 $hug->aiLog = true;
-$hug->logPath = $home.'/hugimages/';
+$hug->logPath = '/';
 $hug->historySwitch = true;
-$hug->loadModels('/git/clsHuggingface/chat_base.php');
+$hug->loadModels('chat_base.php');
 $hug->setModel(1) ;
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $prompt = textarea('<fg=cyan>Prompting: '.$hug->aiModel.' in Role: '.$hug->pubRole.'</>');
-    $aiMessage = $hug->userPrompt($prompt);
-    info('<fg=cyan>'.$aiMessage.'</>');
+
+echo "\n\n<br><br>".$_POST['prompt']."\n<br>";
+
+    $text = $hug->userPrompt($_POST['prompt']);
+echo "\n\n<br>".$text."\n<br><br>";
 }
 ?>
 

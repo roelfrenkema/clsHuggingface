@@ -324,9 +324,6 @@ Add to current Negative Prompt
         // Create stream
         $context = stream_context_create($options);
 
-        // Temporarily disable error reporting
-        $previous_error_reporting = error_reporting(0);
-
         // Start pulling session
         $timer = 0;
         $pointer = true;
@@ -344,16 +341,20 @@ Add to current Negative Prompt
 
             sleep($timer);
 
+	    // Temporarily disable error reporting
+	    $previous_error_reporting = error_reporting(0);
+
             // Communicate
             $result = @file_get_contents($this->endPoint, false, $context);
+
+	    // Restore the previous error reporting level
+	    error_reporting($previous_error_reporting);
 
             // Check if an error occurred
             if ($result === false) {
 
                 $error = error_get_last();
 
-                // Restore the previous error reporting level
-                error_reporting($previous_error_reporting);
 
                 if ($error !== null) {
                     if (str_contains($error['message'], '503')) {
