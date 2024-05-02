@@ -341,20 +341,19 @@ Add to current Negative Prompt
 
             sleep($timer);
 
-	    // Temporarily disable error reporting
-	    $previous_error_reporting = error_reporting(0);
+            // Temporarily disable error reporting
+            $previous_error_reporting = error_reporting(0);
 
             // Communicate
             $result = @file_get_contents($this->endPoint, false, $context);
 
-	    // Restore the previous error reporting level
-	    error_reporting($previous_error_reporting);
+            // Restore the previous error reporting level
+            error_reporting($previous_error_reporting);
 
             // Check if an error occurred
             if ($result === false) {
 
                 $error = error_get_last();
-
 
                 if ($error !== null) {
                     if (str_contains($error['message'], '503')) {
