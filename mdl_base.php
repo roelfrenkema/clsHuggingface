@@ -9,6 +9,20 @@ $this->useModels[] = [
     'pre' => '',
     'past' => '',
 ];
+// 2 great reality model
+$this->useModels[] = [
+    'tag' => 'AR_v1.8.1',
+    'model' => 'digiplay/AbsoluteReality_v1.8.1',
+    'pre' => '',
+    'past' => '',
+];
+// 3 great reality model
+$this->useModels[] = [
+    'tag' => 'Duchaiten',
+    'model' => 'stablediffusionapi/duchaiten-real3d-nsfw-xl',
+    'pre' => '',
+    'past' => '',
+];
 $this->useModels[] = [
     'tag' => 'yntecgasm',
     'model' => 'Yntec/epiCPhotoGasm',

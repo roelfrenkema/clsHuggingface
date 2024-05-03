@@ -8,6 +8,7 @@
 
 /* Updates
  *
+ * 02-05-2024 - Added Pipe
  * 01-05-2024 - Made the picture properties public. Now user can
  * 		experiment with them.
  * 30-04-2024 - Changes to listmodels that allow for search now
@@ -84,7 +85,8 @@ Add to current Negative Prompt
 
     public $userPrompt;       //use for prompt
 
-    private $nPrompt = [['name' => 'common',
+    private $nPrompt = [
+	['name' => 'common',
         'np' => 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,',
         'description' => 'A commonly used NP with a broad impact. But nothing special. Set as default NP.'],
         ['name' => 'anatomy',
@@ -441,14 +443,24 @@ Add to current Negative Prompt
         `$temp`;
 
     }
+function checkUserInput($timeout = 0) {
+    $read = array(STDIN);
+    $write = [];
+    $except = [];
 
+    // Check if there's any available data from standard input within the specified timeout (optional).
+    if (stream_select($read, $write, $except, $timeout)) {
+        $input = trim(fgets(STDIN));
+        return $input;
+    }
+}
     public function getNp($userInput)
     {
 
         foreach ($this->nPrompt as $item) {
 
             if ($item['name'] == $userInput) {
-                $negPrompt = $item['np'];
+                $this->negPrompt = $item['np'];
 
                 return 'Prompt set to '.$item['name'];
             }
