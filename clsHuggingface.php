@@ -54,6 +54,9 @@ Loop through loaded models with prompt.
 /loadmodels <path/name>
 <path/name> from home starting with slash>
 
+/hmodels
+load current huggingface models
+
 /shownp
 Show current negative prompt
 
