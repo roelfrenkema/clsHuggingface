@@ -66,13 +66,15 @@ Add to current Negative Prompt
 
     private const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
-    private $clsVersion = "V.0.4.0";
-    
+    private $clsVersion = 'v.0.4.0';
+
     private $apiKey;      //secure apiKey
 
     private $endPoint;    //containing our endpoint
 
     public $useModels;      //models
+
+    public $curModel;       //curent model used for exif
 
     private $sName = 'base';       //shortname for model
 
@@ -91,9 +93,9 @@ Add to current Negative Prompt
     public $userPrompt;       //use for prompt
 
     private $nPrompt = [
-	['name' => 'common',
-        'np' => 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,',
-        'description' => 'A commonly used NP with a broad impact. But nothing special. Set as default NP.'],
+        ['name' => 'common',
+            'np' => 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,',
+            'description' => 'A commonly used NP with a broad impact. But nothing special. Set as default NP.'],
         ['name' => 'anatomy',
             'np' => 'Bad anatomy, Bad hands, Amputee, Missing fingers, Missing hands, Missing limbs, Missing arms, Extra fingers, Extra hands, Extra limbs , Mutated hands, Mutated, Mutation, Multiple heads, Malformed limbs, Disfigured, Poorly drawn hands, Poorly drawn face, Long neck, Fused fingers, Fused hands, Dismembered, Duplicate , Improper scale, Ugly body, Cloned face, Cloned body , Gross proportions, Body horror, Too many fingers, Cross Eyes,',
             'description' => 'This one concentrates on the anatomy of the subject. Great for groups etc.'],
@@ -131,6 +133,7 @@ Add to current Negative Prompt
     public $exiv2Copy = 'CC BY-NC-SA 4.0';     //copyright info
 
     private $userHome;
+
     private $userAgent = '';		//Useragent string
 
     public $wait_for_model = true; // api waiting for reply
@@ -151,10 +154,11 @@ Add to current Negative Prompt
     public $width = 1024;
 
     public $height = 1024;
-    
+
     public $intModel = 1; // model number used by setModel and loopModels
+
     public $userpipe = '';
-    
+
     /*
     * Function: __construct
     * Input   : not applicable
@@ -194,7 +198,7 @@ Add to current Negative Prompt
         $this->userHome = $_ENV['HOME'];
         $this->userAgent = 'clsHuggingface.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
 
-        echo "Welcome to clsHuggingface v1.0.0 - enjoy!\n\n";
+        echo 'Welcome to clsHuggingface '.$this->clsVersion." - enjoy!\n\n";
     }
     /*
     * Function: $userPrompt()
@@ -416,14 +420,15 @@ Add to current Negative Prompt
         // Write the image.
 
         $answer = $this->writeImage($result);
-	
-        if ($this->userPipe) $this->apiPipe();
-        
 
+        if ($this->userPipe) {
+            $this->apiPipe();
+        }
 
         return $answer;
 
     }
+
     /*
     * Function: apiPipe()
     * Input   : none
@@ -443,22 +448,26 @@ Add to current Negative Prompt
         //tokenreplacement
         $temp = str_ireplace('%prompt%', $this->userPrompt, $this->userPipe);
 
-//        $temp2 = str_ireplace('%answer%', $this->aiAnswer, $temp);
+        //        $temp2 = str_ireplace('%answer%', $this->aiAnswer, $temp);
 
         `$temp`;
 
     }
-function checkUserInput($timeout = 0) {
-    $read = array(STDIN);
-    $write = [];
-    $except = [];
 
-    // Check if there's any available data from standard input within the specified timeout (optional).
-    if (stream_select($read, $write, $except, $timeout)) {
-        $input = trim(fgets(STDIN));
-        return $input;
+    public function checkUserInput($timeout = 0)
+    {
+        $read = [STDIN];
+        $write = [];
+        $except = [];
+
+        // Check if there's any available data from standard input within the specified timeout (optional).
+        if (stream_select($read, $write, $except, $timeout)) {
+            $input = trim(fgets(STDIN));
+
+            return $input;
+        }
     }
-}
+
     public function getNp($userInput)
     {
 
@@ -476,6 +485,7 @@ function checkUserInput($timeout = 0) {
 
     public function setModel($input)
     {
+        $this->curModel = $this->useModels[$input - 1]['model'];
         $this->endPoint = Huggingface::INFERENCE.$this->useModels[$input - 1]['model'];
 
         $this->sName = $this->useModels[$input - 1]['tag'];
@@ -575,10 +585,12 @@ function checkUserInput($timeout = 0) {
         $storeName = $this->intModel;
         $this->userPrompt = $prompt;
 
-	//prevent repetitious pipe
-        if ($this->userPipe) $this->apiPipe();
-	$storePipe = $this->userPipe;
-	$this->userPipe ='';
+        //prevent repetitious pipe
+        if ($this->userPipe) {
+            $this->apiPipe();
+        }
+        $storePipe = $this->userPipe;
+        $this->userPipe = '';
 
         $mp = 0;
 
@@ -628,24 +640,6 @@ function checkUserInput($timeout = 0) {
 
     }
 
-    private function setExif($id)
-    {
-	
-        $myM = '-M"set Exif.Image.ImageDescription '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
-        $myM .= ' -M"set Iptc.Application2.Subject '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
-        $myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
-        $myM .= ' -M"set Xmp.dc.creator '.$this->exiv2User.'"';
-        $myM .= ' -M"set Xmp.dc.rights '.$this->exiv2Copy.'"';
-        $myM .= ' -M"set Iptc.Application2.Copyright '.$this->exiv2Copy.'"';
-        $myM .= ' -M"set Xmp.photoshop.Credit '.$this->exiv2User.'"';
-        $myM .= ' -M"set Xmp.xmp.CreatorTool clsHuggingface"';
-        $myM .= ' -M"set Exif.Image.Software clsHuggingface"';
-        $myM .= ' -M"set Exif.Photo.UserComment '.$this->endPoint.'"';
-        $myM .= ' -M"set Iptc.Application2.Subject '.$this->endPoint.'"';
-
-        $test = shell_exec("exiv2 $myM ".$id);
-    }
-
     /*
     * Function: stopPrompt()
     * Input   : none
@@ -669,12 +663,18 @@ function checkUserInput($timeout = 0) {
         $image = new Imagick();
         $image->readImageBlob($blob);
         $image->setImageFormat('png');
+        // Set metadata using Imagick
+        if ($this->exiv2) {
+            $image->setImageProperty('Xmp.PostivePrompt', $this->userPrompt);
+            $image->setImageProperty('Xmp.NegativePrompt', $this->negPrompt);
+            $image->setImageProperty('Xmp.photoshop.Credit', $this->exiv2User);
+            $image->setImageProperty('Xmp.dc.rights', $this->exiv2Copy);
+            $image->setImageProperty('Xmp.xmp.CreatorTool', 'clsHuggingface '.$this->clsVersion);
+            $image->setImageProperty('Xmp.LyconAIModel', $this->curModel);
+        }
+
         $id = $this->imgStore.$this->sName.'-'.date('jmdHms').'.png';
         $image->writeImage($id);
-
-        if ($this->exiv2) {
-            $this->setExif($id);
-        }
 
         if ($this->logAll) {
             $this->logString("Main: Image stored as $id\n");

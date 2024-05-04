@@ -64,7 +64,8 @@ IDEA: ';
     private const BASEROLE = 'You are a helpfull friend. We chat in a friendly and familiar way with eachother withot formalities like I am an artificial intelligence or I cannot have feelings. We are friends and we act as friends.';
 
     private const BBLOG = 'Craft a captivating and engaging 1000-word blog post on the Given subject. Consider incorporating the following elements to enhance reader interest and foster a thought-provoking exploration of the subject: delve into the history, analyze it, explore it, provide a call to action. The subject is: ';
-private const CHARACTER = 'I want you to craft unique and compelling characters based on the user prompt.  You generate a character in the format of name, persona, physical appearance, clothing , prompt and scenario in which the character is. Then add an example conversation. It should be based on the user\'s prompt. 
+
+    private const CHARACTER = 'I want you to craft unique and compelling characters based on the user prompt.  You generate a character in the format of name, persona, physical appearance, clothing , prompt and scenario in which the character is. Then add an example conversation. It should be based on the user\'s prompt. 
 
 *Format*
 
@@ -77,6 +78,7 @@ private const CHARACTER = 'I want you to craft unique and compelling characters 
 7. Example conversation: (simulation of conversation between character and user)
 
 ';
+
     private const DREAM = 'Act as an expert prompt engineer, with extensive experience in creating the best prompts for the text-to-image model Stable Difussion.
     
 Instructions for the prompt only:
@@ -602,7 +604,7 @@ using _PAGE_ as a placeholder
 
             // Save history
         } elseif (substr($input, 0, 9) == '/histsave') {
-            $this->saveHistory(trim(substr($input, 10)));
+            $answer = $this->saveHistory(trim(substr($input, 10)));
 
             // load history
         } elseif (substr($input, 0, 9) == '/histload') {
@@ -905,17 +907,20 @@ using _PAGE_ as a placeholder
 
         return $answer;
     }
-function checkUserInput($timeout = 0) {
-    $read = array(STDIN);
-    $write = [];
-    $except = [];
 
-    // Check if there's any available data from standard input within the specified timeout (optional).
-    if (stream_select($read, $write, $except, $timeout)) {
-        $input = trim(fgets(STDIN));
-        return $input;
+    public function checkUserInput($timeout = 0)
+    {
+        $read = [STDIN];
+        $write = [];
+        $except = [];
+
+        // Check if there's any available data from standard input within the specified timeout (optional).
+        if (stream_select($read, $write, $except, $timeout)) {
+            $input = trim(fgets(STDIN));
+
+            return $input;
+        }
     }
-}
 
     public function chatWithHuggingFace($sysRole, $userInput)
     {
@@ -1326,11 +1331,12 @@ function checkUserInput($timeout = 0) {
         //store current model.
         $storeName = $this->intModel;
 
-	//prevent repetitious pipe
-        if ($this->userPipe) $this->apiPipe();
-	$storePipe = $this->userPipe;
-	$this->userPipe ='';
-
+        //prevent repetitious pipe
+        if ($this->userPipe) {
+            $this->apiPipe();
+        }
+        $storePipe = $this->userPipe;
+        $this->userPipe = '';
 
         if (substr($userInput, 0, 1) == '/') {
 
@@ -1361,7 +1367,6 @@ function checkUserInput($timeout = 0) {
 
         $sysModel = constant('HugChat::'.$modName);
 
-
         foreach ($this->useModels as $model) {
 
             $this->chatHistory = '';
@@ -1378,8 +1383,9 @@ function checkUserInput($timeout = 0) {
 
         // restore endPoint
         $this->setModel($storeName);
-	// restore pipe
-	$this->userPipe = $storePipe;
+        // restore pipe
+        $this->userPipe = $storePipe;
+
         return 'Loop done!';
     }
 
@@ -1396,7 +1402,8 @@ function checkUserInput($timeout = 0) {
         $id = $this->logPath.'/'.$name.'.hist';
         $file = json_encode($this->chatHistory);
         file_put_contents($id, $file);
-        echo "Saved your history to $name.\n";
+
+        return "Saved your history to $name.\n";
 
     }
 
