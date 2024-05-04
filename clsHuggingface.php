@@ -628,7 +628,7 @@ function checkUserInput($timeout = 0) {
 
     private function setExif($id)
     {
-
+	
         $myM = '-M"set Exif.Image.ImageDescription '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
         $myM .= ' -M"set Iptc.Application2.Subject '."\nPrompt: ".$this->userPrompt."\n\nNeg: ".$this->negPrompt.'"';
         $myM .= ' -M"set Xmp.plus.ImageSupplierName '.$this->exiv2User.'"';
