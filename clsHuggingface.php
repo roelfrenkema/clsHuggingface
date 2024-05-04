@@ -66,6 +66,8 @@ Add to current Negative Prompt
 
     private const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
+    private $clsVersion = "V.0.4.0";
+    
     private $apiKey;      //secure apiKey
 
     private $endPoint;    //containing our endpoint
