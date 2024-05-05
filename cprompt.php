@@ -13,16 +13,19 @@
 
 $home = $_ENV['HOME'];
 
-/*
-   Initialize start values.
-*/
+// setting paths and including what we need
+set_include_path(get_include_path() . PATH_SEPARATOR . $home.'/git/clsHuggingface');
+set_include_path(get_include_path() . PATH_SEPARATOR . $home.'/git/clsStraico');
 
-set_include_path($home.'/git/clsHuggingface');
+require_once('clsStraico.php');
+require_once('clsHugchatCli.php');
 
-include 'clsHugChat.php';
+require_once $home.'/git/clsHuggingface/vendor/autoload.php';
 
-$aiMessage = '';
-$hug = new HugChat;
+use function Laravel\Prompts\info;
+use function Laravel\Prompts\textarea;
+
+$hug = new HugchatCli;
 
 /*
  * Logpath now equals a working directory. All files are saved here like
@@ -59,19 +62,18 @@ $hug->setModel = 'meta-llama/Meta-Llama-3-70B-Instruct';
     Start looping till finished with /exit
 */
 
-while ($aiMessage !== '/exit') {
+while( $aiMessage !== "/exit" ){
 
-    //prompt
-    $aiMessage = $hug->userPrompt();
-    echo "\n";
-
-    //No input available?
-    if ($aiMessage == '') {
-        continue;
-    }
-
-    //lavarel answer
-    info('<fg=cyan>'.$aiMessage.'</>');
-
+  
+    // lavarel input box
+    $prompt = textarea('<fg=white>Prompting: '.$hug->aiModel.' in Role: '.$hug->pubRole.'</>');
+    
+    // process prompt
+    $aiMessage = $hug->sPrompt($prompt);
+  
+    // no input available?
+    if (! $aiMessage) continue;
+   
+    // native answer
+    echo $aiMessage."\n";
 }
-?>

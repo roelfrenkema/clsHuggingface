@@ -641,12 +641,7 @@ using _PAGE_ as a placeholder
             $this->aiTarget = substr($input, 11);
             echo "Target set to: $this->aiTarget\n";
 
-            // Set Tone
-        } elseif (substr($input, 0, 8) == '/settone') {
-            $this->aiTone = substr($input, 9);
-            echo "Tone set to: $this->aiTone\n";
-
-            // Set page wrap
+             // Set page wrap
         } elseif (substr($input, 0, 8) == '/setwrap') {
             $this->aiWrap = substr($input, 9);
             echo "Linewrap set to: $this->aiWrap\n";
