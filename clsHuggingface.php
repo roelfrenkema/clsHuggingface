@@ -66,17 +66,17 @@ Add to current Negative Prompt
 
     protected const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
-    private $clsVersion = 'v.0.4.0';
+    protected $clsVersion = 'v.0.4.0';
 
-    private $apiKey;      //secure apiKey
+    protected $apiKey;      //secure apiKey
 
-    private $endPoint;    //containing our endpoint
+    protected $endPoint;    //containing our endpoint
 
     public $useModels;      //models
 
     public $curModel;       //curent model used for exif
 
-    private $sName = 'base';       //shortname for model
+    protected $sName = 'base';       //shortname for model
 
     public $pName = 'base';       //public shortname for model
 
@@ -92,7 +92,7 @@ Add to current Negative Prompt
 
     public $userPrompt;       //use for prompt
 
-    private $nPrompt = [
+    protected $nPrompt = [
         ['name' => 'common',
             'np' => 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,',
             'description' => 'A commonly used NP with a broad impact. But nothing special. Set as default NP.'],
@@ -124,17 +124,17 @@ Add to current Negative Prompt
 
     public $negPrompt = 'Ugly,Bad anatomy,Bad proportions,Bad quality ,Blurry,Cropped,Deformed,Disconnected limbs ,Out of frame,Out of focus,Dehydrated,Error ,Disfigured,Disgusting ,Extra arms,Extra limbs,Extra hands,Fused fingers,Gross proportions,Long neck,Low res,Low quality,Jpeg,Jpeg artifacts,Malformed limbs,Mutated ,Mutated hands,Mutated limbs,Missing arms,Missing fingers,Picture frame,Poorly drawn hands,Poorly drawn face,Text,Signature,Username,Watermark,Worst quality,Collage ,Pixel,Pixelated,Grainy,';     //negative prompt from user
 
-    private $prePrompt;    //add before prompt
+    protected $prePrompt;    //add before prompt
 
-    private $pastPrompt;    //add after prompt
+    protected $pastPrompt;    //add after prompt
 
     public $exiv2User = 'clsHuggingface';     //get your name stamped
 
     public $exiv2Copy = 'CC BY-NC-SA 4.0';     //copyright info
 
-    private $userHome;
+    protected $userHome;
 
-    private $userAgent = '';		//Useragent string
+    protected $userAgent = '';		//Useragent string
 
     public $wait_for_model = true; // api waiting for reply
 
@@ -422,10 +422,7 @@ Add to current Negative Prompt
 
         $options = [
             'http' => [
-                'header' => 'Authorization: Bearer '.$this->apiKey."\r\n".
-                        "x-use-cache: 0\r\n".
-                        "Content-Type: application/json\r\n".
-                        "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.84 Safari/537.36\r\n",
+                'header' => "Content-Type: application/json\r\n",
                 'method' => 'GET',
             ],
         ];
@@ -488,7 +485,7 @@ Add to current Negative Prompt
             }
         }
 
-        return "INFO: Models list done!";
+        return "INFO: Models list done!\n";
     }
 
     public function listNp()
