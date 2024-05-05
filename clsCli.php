@@ -19,17 +19,13 @@ class Cli extends Huggingface
         parent::hugModels();				//get models from Hug
         parent::setModel(1);	//set first model as base
 
-        if (getenv('WORD_WRAP')) {
-            $this->aiWrap = getenv('WORD_WRAP');
-        }
-	
-        $this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
+ 	
+        $this->userAgent = 'clsHuggingface.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
 	$this->userPipe ='';
     }
     
     public function cliPrompt($input)
     {
-	$this->userPipe ='';
 	
         $input = trim($input);
 

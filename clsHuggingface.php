@@ -157,7 +157,7 @@ Add to current Negative Prompt
 
     public $intModel = 1; // model number used by setModel and loopModels
 
-    public $userpipe = '';
+    public $userPipe = '';
 
     /*
     * Function: __construct
