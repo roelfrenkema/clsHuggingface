@@ -7,6 +7,25 @@ class Cli extends Huggingface
  * gelezen en de uiteindelijke uitvoering gestuurd.
  * De bedoeling is dat daarmee de hoofd class beter herbruikbaar word. 
  */
+   public function __construct()
+   {
+
+        if (getenv('INFERENCE_READ')) {
+            $this->apiKey = getenv('INFERENCE_READ');
+        } else {
+	    exit('Could not find environment variable INFERENCE_READ with the API key. Exiting!');
+        }
+
+        parent::hugModels();				//get models from Hug
+        parent::setModel(1);	//set first model as base
+
+        if (getenv('WORD_WRAP')) {
+            $this->aiWrap = getenv('WORD_WRAP');
+        }
+	
+        $this->userAgent = 'clsHugchat.php '.$this->clsVersion.' (Debian GNU/Linux 12 (bookworm) x86_64) PHP 8.2.7 (cli)';
+	$this->userPipe ='';
+    }
     
     public function cliPrompt($input)
     {
