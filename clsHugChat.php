@@ -608,13 +608,14 @@ using _PAGE_ as a placeholder
 
             // load history
         } elseif (substr($input, 0, 9) == '/histload') {
-            $this->loadHistory(trim(substr($input, 10)));
+            $answer = $this->loadHistory(trim(substr($input, 10)));
 
             // clear history
         } elseif (trim($input) == '/histclear') {
             $this->generatedText = '';
             $this->genUser = [];
             $this->genAssistant = [];
+	    $answer = "History cleared\n";
 
             // Set model
         } elseif (substr($input, 0, 9) == '/setmodel') {

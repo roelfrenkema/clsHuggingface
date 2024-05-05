@@ -39,8 +39,12 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\textarea;
 
 include 'clsHuggingface.php';
+include 'clsCli.php';
+//$hug = new Huggingface;
+$hug = new Cli;
+//$extended->help();
+//exit;
 
-$hug = new Huggingface;
 
 $hug->imgStore = $home.'/git/clsHuggingface/';
 $hug->exiv2 = false;
@@ -84,7 +88,7 @@ while ($aiMessage !== '/exit') {
     $prompt = textarea('<fg=white>Prompting: '.$hug->pName.'</>');
 
     // process prompt
-    $aiMessage = $hug->userPrompt($prompt);
+    $aiMessage = $hug->cliPrompt($prompt);
 
     // no input available?
     if (! $aiMessage) {

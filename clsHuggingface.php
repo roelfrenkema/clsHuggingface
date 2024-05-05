@@ -21,7 +21,7 @@
 
 class Huggingface
 {
-    private const HELP = '
+    protected const HELP = '
 Commands:
 
 /helpme      
@@ -64,7 +64,7 @@ Show current negative prompt
 Add to current Negative Prompt
 ';
 
-    private const INFERENCE = 'https://api-inference.huggingface.co/models/';
+    protected const INFERENCE = 'https://api-inference.huggingface.co/models/';
 
     private $clsVersion = 'v.0.4.0';
 
@@ -211,86 +211,6 @@ Add to current Negative Prompt
     * TODO: public function needs cleanup for readability.
     */
 
-    public function userPrompt($input)
-    {
-        $input = trim($input);
-
-        // End cls session on cli
-        if ($input == '/exit') {
-            $this->stopPrompt;
-
-            //loadmodels
-        } elseif (substr($input, 0, 11) == '/loadmodels') {
-            $answer = $this->loadModels(substr($input, 12));
-
-            // Set negPromp
-        } elseif (substr($input, 0, 6) == '/setnp') {
-            $this->negPrompt = substr($input, 7);
-            $answer = "Negative prompt: $this->negPrompt\n";
-
-            // Get buildin promp
-        } elseif (substr($input, 0, 6) == '/getnp') {
-            $answer = $this->getNp(substr($input, 7));
-
-            // Add to negPromp
-        } elseif (substr($input, 0, 6) == '/addnp') {
-            $this->negPrompt .= substr($input, 7);
-            $answer = "Negative prompt: $this->negPrompt\n";
-
-            // Set model
-        } elseif (substr($input, 0, 9) == '/setmodel') {
-            $answer = $this->setModel(substr($input, 10));
-
-            // Show current negative prompt
-        } elseif ($input == '/shownp') {
-            $answer = "Negative prompt: $this->negPrompt\n";
-
-            // List available models
-        } elseif (substr($input, 0, 11) == '/listmodels') {
-            $this->listModels(substr($input, 12));
-            $answer = '';
-
-            // List negative prompts
-        } elseif (substr($input, 0, 7) == '/listnp') {
-            $this->listNp(substr($input, 8));
-            $answer = '';
-
-            // loop prompt through models
-        } elseif (substr($input, 0, 5) == '/loop') {
-            $this->loopModels(substr($input, 6));
-            $answer = "Loop done. \n\n";
-
-            // logon
-        } elseif ($input == '/logon') {
-            $this->logAll = true;
-            $answer = 'Log enabled.';
-
-            // logon
-        } elseif ($input == '/logoff') {
-            $this->logAll = false;
-            $answer = 'Log disabled.';
-
-            //  help
-        } elseif ($input == '/helpme') {
-            $answer = Huggingface::HELP;
-
-            //  huggingface models
-        } elseif ($input == '/hmodels') {
-            $answer = $this->hugModels();
-
-            //  lastcheck on not existing command
-        } elseif (substr($input, 0, 1) == '/') {
-            $answer = Huggingface::HELP;
-            $answer .= "\nWARNING COMMAND: $input UNKNOWN\n\n";
-
-            // Proccess
-        } else {
-            $this->userPrompt = trim($this->prePrompt.' '.$input.' '.$this->pastPrompt);
-            $answer = $this->apiCompletion($this->userPrompt);
-        }
-
-        return $answer;
-    }
 
     /*
      * Function: apiCompletion($aiMessage)
@@ -496,7 +416,7 @@ Add to current Negative Prompt
         return "\nModel is: $this->sName\n";
     }
 
-    private function hugModels()
+    protected function hugModels()
     {
         $endpoint = 'https://api-inference.huggingface.co/framework/diffusers';
 
@@ -538,7 +458,7 @@ Add to current Negative Prompt
         }
     }
 
-    private function listModels($searchString = null)
+    protected function listModels($searchString = null)
     {
         $modelsFound = [];
         $point = 0;
@@ -568,7 +488,7 @@ Add to current Negative Prompt
             }
         }
 
-        return $modelsFound;
+        return "INFO: Models list done!";
     }
 
     public function listNp()
@@ -576,6 +496,7 @@ Add to current Negative Prompt
         foreach ($this->nPrompt as $item) {
             echo 'Prompt name: '.$item['name'].", \nDescription: ".$item['description']."\n\n";
         }
+	return "INFO: list completed!";
     }
 
     public function loopModels($prompt)
@@ -650,7 +571,7 @@ Add to current Negative Prompt
     *
     * Private function used by $this->userPrompt()
     */
-    private function stopPrompt()
+    protected function stopPrompt()
     {
         echo 'Join Straico via https://platform.straico.com/signup?fpr=roelf14'."\n";
         echo "Thank you and have a nice day.\n";
