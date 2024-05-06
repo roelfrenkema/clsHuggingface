@@ -552,7 +552,7 @@ Add to current Negative Prompt
     public function logString($string)
     {
 
-        $log = $this->imgStore.'/log.txt';
+        $log = $this->imgStore.'/HuggingFace.log';
 
         file_put_contents($log, date('Y-m-d H:i:s').' '.$string, FILE_APPEND);
 
