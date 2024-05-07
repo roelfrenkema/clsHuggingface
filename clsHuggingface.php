@@ -211,7 +211,6 @@ Add to current Negative Prompt
     * TODO: public function needs cleanup for readability.
     */
 
-
     /*
      * Function: apiCompletion($aiMessage)
      * Input   : $aiMessage - is the prompt
@@ -493,7 +492,8 @@ Add to current Negative Prompt
         foreach ($this->nPrompt as $item) {
             echo 'Prompt name: '.$item['name'].", \nDescription: ".$item['description']."\n\n";
         }
-	return "INFO: list completed!";
+
+        return 'INFO: list completed!';
     }
 
     public function loopModels($prompt)

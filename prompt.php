@@ -8,7 +8,6 @@
  *
  */
 
-
 /*
  *  We asume for this example that your installation lives in
  *  the directory git under your homedirectory. You have to make
@@ -18,19 +17,17 @@
 $home = $_ENV['HOME'];
 
 // setting paths and including what we need
-set_include_path(get_include_path() . PATH_SEPARATOR . $home.'/git/clsHuggingface');
+set_include_path(get_include_path().PATH_SEPARATOR.$home.'/git/clsHuggingface');
 
 require_once $home.'/git/clsHuggingface/vendor/autoload.php';
 
 use function Laravel\Prompts\info;
 use function Laravel\Prompts\textarea;
 
-require_once('clsHuggingface.php');
-require_once('clsCli.php');
-
+require_once 'clsHuggingface.php';
+require_once 'clsCli.php';
 
 $hug = new Cli;
-
 
 $hug->imgStore = $home.'/git/clsHuggingface/';
 $hug->exiv2 = false;
@@ -50,7 +47,6 @@ $hug->slUpdate = 30;
  * Set startprompt. Needed to find your model a start.
  */
 //$hug->setModel('base');
-
 
 /*
  * You can also set one of the buildin negative prompts
