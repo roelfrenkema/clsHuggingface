@@ -25,7 +25,7 @@ use function Laravel\Prompts\info;
 use function Laravel\Prompts\textarea;
 
 require_once 'clsHuggingface.php';
-require_once 'clsCli.php';
+require_once 'clsHuggingfaceCli.php';
 
 $hug = new Cli;
 
